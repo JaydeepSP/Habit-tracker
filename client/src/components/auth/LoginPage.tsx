@@ -60,7 +60,7 @@ export const LoginPage = () => {
             <Flame className="w-6 h-6 fill-current" />
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight">
-            Sign in to HabitSync
+            Sign in to AtomicSync
           </h1>
           <p className="text-xs text-neutral-400">
             Build atomic daily habits and achieve consistency

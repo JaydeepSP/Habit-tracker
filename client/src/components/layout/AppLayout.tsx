@@ -53,10 +53,10 @@ export const AppLayout = () => {
             </div>
             <div>
               <h1 className="font-black text-lg tracking-tight text-slate-900 dark:text-white">
-                HabitSync
+                AtomicSync
               </h1>
               <p className="text-[10px] font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-widest">
-                Atomic Routine
+                Daily Routine
               </p>
             </div>
           </div>

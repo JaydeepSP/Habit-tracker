@@ -1,4 +1,4 @@
-# HabitSync — Full-Stack MERN Habit Tracker 🚀
+# AtomicSync — Full-Stack MERN Habit Tracker 🚀
 
 A production-ready, personal habit-tracking application built with the **MERN Stack** (MongoDB, Express.js, React.js, Node.js), Vite, and Tailwind CSS. Designed with a SaaS-grade aesthetic, streak calculation engine, interactive calendar view, and Recharts analytics.
 
