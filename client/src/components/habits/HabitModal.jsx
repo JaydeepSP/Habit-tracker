@@ -9,12 +9,11 @@ import {
   DynamicIcon,
   DAYS_OF_WEEK,
 } from '../../utils/constants';
-import { habitService } from '../../services/habitService';
-import { useToast } from '../../context/ToastContext';
+import { useHabits } from '../../hooks';
 
 export const HabitModal = ({ isOpen, onClose, habitToEdit = null, onSaved }) => {
-  const { success, error } = useToast();
   const isEditing = !!habitToEdit;
+  const { createHabit, updateHabit, isCreating, isUpdating } = useHabits();
 
   const {
     register,
@@ -86,15 +85,13 @@ export const HabitModal = ({ isOpen, onClose, habitToEdit = null, onSaved }) => 
   const onSubmit = async (data) => {
     try {
       if (isEditing) {
-        await habitService.updateHabit(habitToEdit._id, data);
-        success('Habit updated successfully');
+        await updateHabit(habitToEdit._id, data);
       } else {
-        await habitService.createHabit(data);
-        success('Habit created successfully! 🎉');
+        await createHabit(data);
       }
       onSaved();
     } catch (err) {
-      error(err.message || 'Failed to save habit');
+      // Error is handled in hook toast
     }
   };
 

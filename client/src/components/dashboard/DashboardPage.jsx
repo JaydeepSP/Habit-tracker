@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -10,9 +10,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { statsService } from '../../services/statsService';
-import { habitService } from '../../services/habitService';
+import { useDashboardStats, useHabits } from '../../hooks';
 import { Button, Card } from '../ui';
 import { HabitCard } from '../habits/HabitCard';
 import { HabitModal } from '../habits/HabitModal';
@@ -21,83 +19,34 @@ import { DashboardSkeleton } from '../ui/Skeleton';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
-  const { success, error } = useToast();
   const { openCreateModal } = useOutletContext() || {};
 
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [editingHabit, setEditingHabit] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isRecommendedModalOpen, setIsRecommendedModalOpen] = useState(false);
 
-  const fetchDashboardData = async () => {
-    try {
-      const res = await statsService.getDashboardStats();
-      if (res.success) {
-        setDashboardData(res.data);
-      }
-    } catch (err) {
-      error(err.message || 'Failed to load dashboard statistics');
-    } finally {
-      setLoading(false);
-    }
+  // Custom API hooks
+  const { today, streaks, habits, last7Days, isLoading } = useDashboardStats();
+  const { toggleCompletion, toggleActive, deleteHabit } = useHabits();
+
+  const handleToggleCompletion = (habitId) => {
+    toggleCompletion(habitId);
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-
-    // Listen to custom global events
-    const handleDataChanged = () => fetchDashboardData();
-    window.addEventListener('habit-data-changed', handleDataChanged);
-    return () => window.removeEventListener('habit-data-changed', handleDataChanged);
-  }, []);
-
-  const handleToggleCompletion = async (habitId) => {
-    try {
-      const res = await habitService.toggleCompletion(habitId);
-      if (res.success) {
-        if (res.data.completed) {
-          success('Habit completed! Keep up the momentum 🔥');
-        } else {
-          success('Completion undone');
-        }
-        // Update local state smoothly
-        fetchDashboardData();
-      }
-    } catch (err) {
-      error(err.message || 'Failed to update habit');
-    }
+  const handleToggleActive = (habitId) => {
+    toggleActive(habitId);
   };
 
-  const handleToggleActive = async (habitId) => {
-    try {
-      await habitService.toggleActive(habitId);
-      success('Habit status updated');
-      fetchDashboardData();
-    } catch (err) {
-      error(err.message || 'Failed to update habit status');
-    }
-  };
-
-  const handleDelete = async (habit) => {
+  const handleDelete = (habit) => {
     if (window.confirm(`Are you sure you want to delete "${habit.name}"?`)) {
-      try {
-        await habitService.deleteHabit(habit._id);
-        success('Habit deleted');
-        fetchDashboardData();
-      } catch (err) {
-        error(err.message || 'Failed to delete habit');
-      }
+      deleteHabit(habit._id);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <DashboardSkeleton />;
   }
 
-  const today = dashboardData?.today || { completed: 0, total: 0, percentage: 0 };
-  const streaks = dashboardData?.streaks || { currentStreak: 0, longestStreak: 0 };
-  const habits = dashboardData?.habits || [];
   const scheduledTodayHabits = habits.filter((h) => h.isScheduledToday);
 
   // Formatted date string for greeting
@@ -187,7 +136,7 @@ export const DashboardPage = () => {
               {/* Mini 7-day strip */}
               <div className="pt-2 border-t border-slate-100 dark:border-neutral-800">
                 <div className="flex items-center justify-between gap-1 max-w-sm mx-auto sm:mx-0">
-                  {dashboardData?.last7Days?.map((d) => (
+                  {last7Days.map((d) => (
                     <div key={d.date} className="flex flex-col items-center gap-1">
                       <span className="text-[10px] font-semibold text-slate-400 dark:text-neutral-500">
                         {d.day}

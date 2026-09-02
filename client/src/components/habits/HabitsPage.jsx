@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Plus, Search, Filter, CheckCircle2, PauseCircle } from 'lucide-react';
-import { habitService } from '../../services/habitService';
-import { useToast } from '../../context/ToastContext';
+import { useHabits, useHabitFilters } from '../../hooks';
 import { CATEGORIES } from '../../utils/constants';
 import { Button, Card, Input } from '../ui';
 import { HabitCard } from './HabitCard';
@@ -10,86 +9,41 @@ import { HabitModal } from './HabitModal';
 import { Skeleton } from '../ui/Skeleton';
 
 export const HabitsPage = () => {
-  const { success, error } = useToast();
   const { openCreateModal } = useOutletContext() || {};
-
-  const [habits, setHabits] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'active' | 'paused'
 
   const [editingHabit, setEditingHabit] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const fetchHabits = async () => {
-    try {
-      const res = await habitService.getHabits();
-      if (res.success) {
-        setHabits(res.data);
-      }
-    } catch (err) {
-      error(err.message || 'Failed to load habits');
-    } finally {
-      setLoading(false);
-    }
+  // TanStack Query & Mutation Hook
+  const { habits, isLoading, toggleCompletion, toggleActive, deleteHabit } = useHabits();
+
+  // Business UI Logic Hook for Search & Filtering
+  const {
+    filteredHabits,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    statusFilter,
+    setStatusFilter,
+    activeCount,
+    pausedCount,
+    resetFilters,
+  } = useHabitFilters(habits);
+
+  const handleToggleCompletion = (habitId) => {
+    toggleCompletion(habitId);
   };
 
-  useEffect(() => {
-    fetchHabits();
-    const handleDataChanged = () => fetchHabits();
-    window.addEventListener('habit-data-changed', handleDataChanged);
-    return () => window.removeEventListener('habit-data-changed', handleDataChanged);
-  }, []);
-
-  const handleToggleCompletion = async (habitId) => {
-    try {
-      const res = await habitService.toggleCompletion(habitId);
-      if (res.success) {
-        success(res.data.completed ? 'Habit marked as complete! 🎉' : 'Completion undone');
-        fetchHabits();
-      }
-    } catch (err) {
-      error(err.message || 'Failed to update completion');
-    }
+  const handleToggleActive = (habitId) => {
+    toggleActive(habitId);
   };
 
-  const handleToggleActive = async (habitId) => {
-    try {
-      await habitService.toggleActive(habitId);
-      success('Habit status updated');
-      fetchHabits();
-    } catch (err) {
-      error(err.message || 'Failed to toggle status');
-    }
-  };
-
-  const handleDelete = async (habit) => {
+  const handleDelete = (habit) => {
     if (window.confirm(`Are you sure you want to delete "${habit.name}"? This action cannot be undone.`)) {
-      try {
-        await habitService.deleteHabit(habit._id);
-        success('Habit and history deleted');
-        fetchHabits();
-      } catch (err) {
-        error(err.message || 'Failed to delete habit');
-      }
+      deleteHabit(habit._id);
     }
   };
-
-  // Filter habits locally
-  const filteredHabits = habits.filter((h) => {
-    const matchesSearch = h.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (h.description && h.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = selectedCategory === 'All' || h.category === selectedCategory;
-    const matchesStatus =
-      statusFilter === 'all'
-        ? true
-        : statusFilter === 'active'
-        ? h.isActive
-        : !h.isActive;
-
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
 
   return (
     <div className="space-y-6">
@@ -145,7 +99,7 @@ export const HabitsPage = () => {
                   : 'text-slate-500 dark:text-neutral-400'
               }`}
             >
-              Active ({habits.filter((h) => h.isActive).length})
+              Active ({activeCount})
             </button>
             <button
               onClick={() => setStatusFilter('paused')}
@@ -155,7 +109,7 @@ export const HabitsPage = () => {
                   : 'text-slate-500 dark:text-neutral-400'
               }`}
             >
-              Paused ({habits.filter((h) => !h.isActive).length})
+              Paused ({pausedCount})
             </button>
           </div>
 
@@ -177,7 +131,7 @@ export const HabitsPage = () => {
       </Card>
 
       {/* Habits Grid */}
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Skeleton key={i} className="h-44 rounded-2xl" />

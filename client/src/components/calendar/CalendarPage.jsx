@@ -1,46 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Clock } from 'lucide-react';
-import { statsService } from '../../services/statsService';
-import { completionService } from '../../services/completionService';
-import { habitService } from '../../services/habitService';
-import { useToast } from '../../context/ToastContext';
+import { useCalendarStats, useDateCompletions } from '../../hooks';
 import { Card, Button, Badge } from '../ui';
 import { Modal } from '../ui/Modal';
 import { DynamicIcon } from '../../utils/constants';
 import { Skeleton } from '../ui/Skeleton';
 
 export const CalendarPage = () => {
-  const { success, error } = useToast();
   const today = new Date();
 
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1); // 1-12
-  const [calendarData, setCalendarData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   // Selected date details modal
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedDateCompletions, setSelectedDateCompletions] = useState([]);
   const [dateModalOpen, setDateModalOpen] = useState(false);
-  const [dateLoading, setDateLoading] = useState(false);
 
-  const fetchCalendar = async () => {
-    setLoading(true);
-    try {
-      const res = await statsService.getMonthlyStats(currentYear, currentMonth);
-      if (res.success) {
-        setCalendarData(res.data);
-      }
-    } catch (err) {
-      error(err.message || 'Failed to load calendar data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCalendar();
-  }, [currentYear, currentMonth]);
+  // Custom TanStack Hooks
+  const { calendarData, isLoading: loading } = useCalendarStats(currentYear, currentMonth);
+  const { completions: selectedDateCompletions, isLoading: dateLoading } = useDateCompletions(
+    selectedDate?.date,
+    dateModalOpen
+  );
 
   const handlePrevMonth = () => {
     if (currentMonth === 1) {
@@ -60,21 +41,9 @@ export const CalendarPage = () => {
     }
   };
 
-  const handleDateClick = async (dayObj) => {
+  const handleDateClick = (dayObj) => {
     setSelectedDate(dayObj);
     setDateModalOpen(true);
-    setDateLoading(true);
-
-    try {
-      const res = await completionService.getCompletionsByDate(dayObj.date);
-      if (res.success) {
-        setSelectedDateCompletions(res.data);
-      }
-    } catch (err) {
-      error(err.message || 'Failed to load date details');
-    } finally {
-      setDateLoading(false);
-    }
   };
 
   // Month name formatter

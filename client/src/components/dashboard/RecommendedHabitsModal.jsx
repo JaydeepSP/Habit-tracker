@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui';
 import { DynamicIcon } from '../../utils/constants';
-import { habitService } from '../../services/habitService';
-import { useToast } from '../../context/ToastContext';
+import { useHabits } from '../../hooks';
 import { Check } from 'lucide-react';
 
 const RECOMMENDED_LIST = [
@@ -75,9 +74,9 @@ const RECOMMENDED_LIST = [
 ];
 
 export const RecommendedHabitsModal = ({ isOpen, onClose, onAdded }) => {
-  const [selectedHabits, setSelectedHabits] = useState([0, 1, 2, 4]); // Pre-select a few popular ones
+  const [selectedHabits, setSelectedHabits] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { success, error } = useToast();
+  const { createBatchHabits } = useHabits();
 
   const toggleSelect = (index) => {
     if (selectedHabits.includes(index)) {
@@ -92,12 +91,9 @@ export const RecommendedHabitsModal = ({ isOpen, onClose, onAdded }) => {
     setIsSubmitting(true);
     try {
       const habitsToCreate = selectedHabits.map((idx) => RECOMMENDED_LIST[idx]);
-      await habitService.createBatchHabits(habitsToCreate);
-      success(`Added ${habitsToCreate.length} recommended habits! 🚀`);
+      await createBatchHabits(habitsToCreate);
       onAdded();
       onClose();
-    } catch (err) {
-      error(err.message || 'Failed to add recommended habits');
     } finally {
       setIsSubmitting(false);
     }

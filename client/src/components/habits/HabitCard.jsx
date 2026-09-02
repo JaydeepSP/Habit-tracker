@@ -3,8 +3,7 @@ import { motion } from 'framer-motion';
 import { Check, Edit3, Trash2, Pause, Play } from 'lucide-react';
 import { DynamicIcon } from '../../utils/constants';
 import { HabitContributionGraph } from './HabitContributionGraph';
-import { completionService } from '../../services/completionService';
-import { useToast } from '../../context/ToastContext';
+import { useCompletions } from '../../hooks';
 
 // Get today's date string formatted as YYYY-MM-DD
 const getTodayStr = () => {
@@ -15,7 +14,7 @@ const getTodayStr = () => {
   return `${year}-${month}-${day}`;
 };
 
-export const HabitCard = ({
+export const HabitCard = React.memo(({
   habit,
   onToggle,
   onEdit,
@@ -23,7 +22,7 @@ export const HabitCard = ({
   onToggleActive,
   onRefresh, // optional callback to refresh habits after date-toggle
 }) => {
-  const { error: showError } = useToast();
+  const { toggleDateCompletion } = useCompletions();
   const [isToggling, setIsToggling] = useState(false);
   const todayStr = getTodayStr();
 
@@ -77,22 +76,16 @@ export const HabitCard = ({
       );
 
       try {
-        await completionService.createCompletion({
-          habitId: habit._id,
-          date: day.date,
-          completed: newCompleted,
-        });
-        window.dispatchEvent(new CustomEvent('habit-data-changed'));
+        await toggleDateCompletion(habit._id, day.date, newCompleted);
         if (onRefresh) onRefresh();
       } catch (err) {
         // Roll back optimistic update on error
         setLocalCompletedDates((prev) =>
           isCurrentlyDone ? [...prev, day.date] : prev.filter((d) => d !== day.date)
         );
-        showError(err.message || 'Failed to update completion');
       }
     },
-    [localCompletedDates, habit._id, onRefresh, showError]
+    [localCompletedDates, habit._id, onRefresh, toggleDateCompletion]
   );
 
   const streak = habit.currentStreak || 0;
@@ -212,4 +205,6 @@ export const HabitCard = ({
       </div>
     </motion.div>
   );
-};
+});
+
+HabitCard.displayName = 'HabitCard';

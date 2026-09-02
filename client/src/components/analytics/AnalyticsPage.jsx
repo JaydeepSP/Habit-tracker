@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -20,8 +20,7 @@ import {
   Calendar,
   Layers,
 } from "lucide-react";
-import { statsService } from "../../services/statsService";
-import { useToast } from "../../context/ToastContext";
+import { useAnalyticsStats } from "../../hooks";
 import { Card, Badge } from "../ui";
 import { DynamicIcon, CATEGORY_COLORS } from "../../utils/constants";
 import { Skeleton } from "../ui/Skeleton";
@@ -84,40 +83,14 @@ const CustomPieTooltip = ({ active, payload }) => {
 };
 
 export const AnalyticsPage = () => {
-  const { error } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [weeklyData, setWeeklyData] = useState([]);
-  const [habitPerformance, setHabitPerformance] = useState([]);
-  const [categoryStats, setCategoryStats] = useState([]);
-  const [streakStats, setStreakStats] = useState(null);
-  const [dashboardSummary, setDashboardSummary] = useState(null);
-
-  useEffect(() => {
-    const fetchAllAnalytics = async () => {
-      try {
-        const [weeklyRes, habitsRes, catRes, streakRes, dashRes] =
-          await Promise.all([
-            statsService.getWeeklyStats(),
-            statsService.getHabitStats(),
-            statsService.getCategoryStats(),
-            statsService.getStreakStats(),
-            statsService.getDashboardStats(),
-          ]);
-
-        if (weeklyRes.success) setWeeklyData(weeklyRes.data.weeklyData || []);
-        if (habitsRes.success) setHabitPerformance(habitsRes.data || []);
-        if (catRes.success) setCategoryStats(catRes.data || []);
-        if (streakRes.success) setStreakStats(streakRes.data || {});
-        if (dashRes.success) setDashboardSummary(dashRes.data || {});
-      } catch (err) {
-        error(err.message || "Failed to load analytics data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllAnalytics();
-  }, []);
+  const {
+    weeklyData,
+    habitPerformance,
+    categoryStats,
+    streakStats,
+    dashboardSummary,
+    isLoading: loading,
+  } = useAnalyticsStats();
 
   if (loading) {
     return (
