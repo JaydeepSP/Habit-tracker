@@ -4,12 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { userService } from '../../services/userService';
 import { Card, Button, Input } from '../ui';
-import { User, Lock, Moon, Sun, Monitor, ShieldCheck } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { User, Lock, ShieldCheck } from 'lucide-react';
 
 export const ProfilePage = () => {
   const { user, updateUser } = useAuth();
-  const { theme, setTheme } = useTheme();
   const { success, error } = useToast();
 
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
@@ -170,57 +168,6 @@ export const ProfilePage = () => {
             </Button>
           </div>
         </form>
-      </Card>
-
-      {/* Appearance / Theme Preferences */}
-      <Card className="p-6 space-y-4 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
-        <h3 className="text-base font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-neutral-800">
-          Appearance & Theme
-        </h3>
-        <p className="text-xs text-slate-500 dark:text-neutral-400">
-          Choose between Dark, Light, or System-synchronized aesthetic
-        </p>
-
-        <div className="grid grid-cols-3 gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => setTheme('light')}
-            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
-              theme === 'light'
-                ? 'bg-slate-900 text-white font-bold border-slate-900'
-                : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-400'
-            }`}
-          >
-            <Sun className="w-5 h-5 text-amber-500" />
-            <span className="text-xs">Light</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTheme('dark')}
-            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
-              theme === 'dark'
-                ? 'bg-white text-black font-bold border-white'
-                : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-400'
-            }`}
-          >
-            <Moon className="w-5 h-5 text-slate-800 dark:text-black" />
-            <span className="text-xs">Dark</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTheme('system')}
-            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
-              theme === 'system'
-                ? 'bg-slate-900 text-white dark:bg-white dark:text-black font-bold'
-                : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-400'
-            }`}
-          >
-            <Monitor className="w-5 h-5" />
-            <span className="text-xs">System</span>
-          </button>
-        </div>
       </Card>
 
       {/* Change Password Form */}

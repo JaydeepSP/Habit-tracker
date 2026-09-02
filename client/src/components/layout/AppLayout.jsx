@@ -7,22 +7,18 @@ import {
   BarChart3,
   User,
   LogOut,
-  Moon,
-  Sun,
   Menu,
   X,
   Flame,
   Plus,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../ui';
 import { HabitModal } from '../habits/HabitModal';
 
 export const AppLayout = () => {
   const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
   const { success } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,35 +95,24 @@ export const AppLayout = () => {
         </div>
 
         {/* User Card & Settings */}
-        <div className="space-y-4 pt-4 border-t border-slate-200/60 dark:border-neutral-800">
-          <div className="flex items-center justify-between px-2">
-            <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Theme</span>
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-neutral-900 text-slate-600 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-800 transition-colors border border-slate-200 dark:border-neutral-800"
-              title="Toggle theme"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800">
+        <div className="space-y-4 pt-4 border-t border-neutral-800">
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900 border border-neutral-800">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-full bg-slate-900 text-white dark:bg-white dark:text-black flex items-center justify-center font-bold text-sm shrink-0">
+              <div className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center font-bold text-sm shrink-0">
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                <p className="text-xs font-semibold text-white truncate">
                   {user?.name || 'User'}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-neutral-400 truncate">
+                <p className="text-[11px] text-neutral-400 truncate">
                   {user?.email}
                 </p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-950/40 transition-colors"
               title="Log out"
             >
               <LogOut className="w-4 h-4" />
@@ -139,24 +124,18 @@ export const AppLayout = () => {
       {/* Main App Content Area */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         {/* Mobile Header */}
-        <header className="lg:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3.5 bg-white dark:bg-[#0D0D0D] border-b border-slate-200 dark:border-neutral-800">
+        <header className="lg:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3.5 bg-[#0D0D0D] border-b border-neutral-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-black flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center">
               <Flame className="w-5 h-5 fill-current" />
             </div>
-            <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white">HabitSync</span>
+            <span className="font-bold text-base tracking-tight text-white">HabitSync</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-neutral-900 text-slate-600 dark:text-neutral-300 border border-slate-200 dark:border-neutral-800"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
-            </button>
-            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-neutral-900 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-neutral-800"
+              className="p-2 rounded-lg bg-neutral-900 text-neutral-300 border border-neutral-800"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
