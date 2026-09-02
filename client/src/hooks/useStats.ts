@@ -1,21 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { statsService } from '@/services/statsService';
 import { useAuth } from '@/context/AuthContext';
-import { queryKeys } from './queryKeys';
 
 /**
  * Custom Hook for Dashboard Statistics
  */
 export const useDashboardStats = () => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const query = useQuery({
-    queryKey: queryKeys.stats.dashboard,
+    queryKey: ['stats', 'dashboard', user?._id],
     queryFn: async () => {
       const res = await statsService.getDashboardStats();
       return res.data;
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!user?._id,
   });
 
   return {
@@ -34,15 +33,15 @@ export const useDashboardStats = () => {
  * Custom Hook for Monthly Calendar History
  */
 export const useCalendarStats = (year?: number, month?: number) => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const query = useQuery({
-    queryKey: queryKeys.stats.calendar(year, month),
+    queryKey: ['stats', 'calendar', user?._id, year, month],
     queryFn: async () => {
       const res = await statsService.getMonthlyStats(year!, month!);
       return res.data;
     },
-    enabled: !!year && !!month && isAuthenticated,
+    enabled: !!year && !!month && isAuthenticated && !!user?._id,
   });
 
   return {
@@ -59,10 +58,10 @@ export const useCalendarStats = (year?: number, month?: number) => {
  * Custom Hook for Comprehensive Performance Analytics
  */
 export const useAnalyticsStats = () => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const query = useQuery({
-    queryKey: queryKeys.stats.analytics,
+    queryKey: ['stats', 'analytics', user?._id],
     queryFn: async () => {
       const [weeklyRes, habitsRes, catRes, streakRes, dashRes] =
         await Promise.all([
@@ -81,7 +80,7 @@ export const useAnalyticsStats = () => {
         dashboardSummary: dashRes.success ? dashRes.data || {} : {},
       };
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!user?._id,
   });
 
   return {

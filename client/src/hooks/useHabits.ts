@@ -8,15 +8,15 @@ import { Habit } from '@/types';
 export const useHabits = (params: Record<string, any> = {}) => {
   const queryClient = useQueryClient();
   const { success, error } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const habitsQuery = useQuery<Habit[]>({
-    queryKey: queryKeys.habits.list(params),
+    queryKey: ['habits', user?._id, params],
     queryFn: async () => {
       const res = await habitService.getHabits(params);
       return res.data || [];
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!user?._id,
   });
 
   const createHabitMutation = useMutation({

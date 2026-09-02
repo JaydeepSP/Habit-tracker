@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/services/authService';
 import type { User } from '@/types';
 
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // Check auth persistence on load
   const checkAuth = async () => {
@@ -40,17 +42,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (email: string, password: string) => {
+    // Clear any previous user's cached queries immediately
+    queryClient.clear();
     const res = await authService.login({ email, password });
     if (res.success && res.data?.user) {
       setUser(res.data.user);
+      // Invalidate queries so fresh data for this user is fetched
+      queryClient.invalidateQueries();
     }
     return res;
   };
 
   const register = async (userData: any) => {
+    queryClient.clear();
     const res = await authService.register(userData);
     if (res.success && res.data?.user) {
       setUser(res.data.user);
+      queryClient.invalidateQueries();
     }
     return res;
   };
@@ -60,6 +68,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await authService.logout();
     } finally {
       setUser(null);
+      // Wipe the cache on logout so no user data remains in memory
+      queryClient.clear();
     }
   };
 
