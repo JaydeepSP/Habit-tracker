@@ -6,6 +6,15 @@ import { HabitContributionGraph } from './HabitContributionGraph';
 import { completionService } from '../../services/completionService';
 import { useToast } from '../../context/ToastContext';
 
+// Get today's date string formatted as YYYY-MM-DD
+const getTodayStr = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const HabitCard = ({
   habit,
   onToggle,
@@ -16,23 +25,39 @@ export const HabitCard = ({
 }) => {
   const { error: showError } = useToast();
   const [isToggling, setIsToggling] = useState(false);
+  const todayStr = getTodayStr();
 
-  // Optimistic local set of completed dates (starts from server data)
+  // Optimistic local set of completed dates
   const [localCompletedDates, setLocalCompletedDates] = useState(
     habit.completedDates || []
   );
 
-  // Sync when habit prop changes (e.g. after server refresh)
-  useState(() => {
+  // Keep local completed dates in sync when habit prop updates
+  React.useEffect(() => {
     setLocalCompletedDates(habit.completedDates || []);
-  });
+  }, [habit.completedDates]);
+
+  // Today is completed if todayStr is in localCompletedDates or habit.isCompletedToday
+  const isCompleted = localCompletedDates.includes(todayStr);
 
   const handleToggle = async (e) => {
     e.stopPropagation();
     if (isToggling) return;
     setIsToggling(true);
+
+    const willBeCompleted = !isCompleted;
+    // Optimistically update today's square in the heatmap
+    setLocalCompletedDates((prev) =>
+      willBeCompleted ? [...prev.filter((d) => d !== todayStr), todayStr] : prev.filter((d) => d !== todayStr)
+    );
+
     try {
       await onToggle(habit._id);
+    } catch (err) {
+      // Rollback on error
+      setLocalCompletedDates((prev) =>
+        isCompleted ? [...prev.filter((d) => d !== todayStr), todayStr] : prev.filter((d) => d !== todayStr)
+      );
     } finally {
       setIsToggling(false);
     }
@@ -57,7 +82,7 @@ export const HabitCard = ({
           date: day.date,
           completed: newCompleted,
         });
-        // Optionally refresh parent data (streaks, etc.)
+        window.dispatchEvent(new CustomEvent('habit-data-changed'));
         if (onRefresh) onRefresh();
       } catch (err) {
         // Roll back optimistic update on error
@@ -70,7 +95,6 @@ export const HabitCard = ({
     [localCompletedDates, habit._id, onRefresh, showError]
   );
 
-  const isCompleted = habit.isCompletedToday;
   const streak = habit.currentStreak || 0;
   const longestStreak = habit.longestStreak || 0;
 

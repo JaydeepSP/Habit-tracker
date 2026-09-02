@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -11,7 +11,7 @@ import {
   Pie,
   Cell,
   Legend,
-} from 'recharts';
+} from "recharts";
 import {
   Flame,
   Award,
@@ -19,21 +19,20 @@ import {
   CheckCircle2,
   Calendar,
   Layers,
-} from 'lucide-react';
-import { statsService } from '../../services/statsService';
-import { useToast } from '../../context/ToastContext';
-import { useTheme } from '../../context/ThemeContext';
-import { Card, Badge } from '../ui';
-import { DynamicIcon, CATEGORY_COLORS } from '../../utils/constants';
-import { Skeleton } from '../ui/Skeleton';
+} from "lucide-react";
+import { statsService } from "../../services/statsService";
+import { useToast } from "../../context/ToastContext";
+import { Card, Badge } from "../ui";
+import { DynamicIcon, CATEGORY_COLORS } from "../../utils/constants";
+import { Skeleton } from "../ui/Skeleton";
 
 // Function to get color for bar chart based on completion rate
 const getBarColor = (rate) => {
-  if (rate >= 100) return '#15803D'; // 100% Forest Green
-  if (rate >= 80) return '#22C55E';  // 80-99% Emerald Green
-  if (rate >= 40) return '#7C3AED';  // 40-79% Medium Violet
-  if (rate > 0) return '#A78BFA';   // <40% Light Lavender
-  return '#525252';                 // 0% Dark Slate/Grey
+  if (rate >= 100) return "#15803D"; // 100% Forest Green
+  if (rate >= 80) return "#22C55E"; // 80-99% Emerald Green
+  if (rate >= 40) return "#7C3AED"; // 40-79% Medium Violet
+  if (rate > 0) return "#A78BFA"; // <40% Light Lavender
+  return "#525252"; // 0% Dark Slate/Grey
 };
 
 // Theme-adaptive custom tooltip for BarChart
@@ -43,9 +42,14 @@ const CustomBarTooltip = ({ active, payload, label }) => {
     const color = getBarColor(rate);
     return (
       <div className="p-2.5 rounded-xl shadow-xl border bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-xs space-y-1">
-        <p className="font-semibold text-slate-500 dark:text-neutral-400">{label}</p>
+        <p className="font-semibold text-slate-500 dark:text-neutral-400">
+          {label}
+        </p>
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+          <span
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: color }}
+          />
           <span className="font-bold">{rate}% Completion Rate</span>
         </div>
       </div>
@@ -58,15 +62,20 @@ const CustomBarTooltip = ({ active, payload, label }) => {
 const CustomPieTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0];
-    const categoryColor = CATEGORY_COLORS[data.name] || '#64748B';
+    const categoryColor = CATEGORY_COLORS[data.name] || "#64748B";
     return (
       <div className="p-2.5 rounded-xl shadow-xl border bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-xs space-y-1">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: categoryColor }} />
-          <span className="font-bold text-slate-900 dark:text-white">{data.name}</span>
+          <span
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: categoryColor }}
+          />
+          <span className="font-bold text-slate-900 dark:text-white">
+            {data.name}
+          </span>
         </div>
         <p className="text-slate-600 dark:text-neutral-300 pl-4.5 font-medium">
-          {data.value} {data.value === 1 ? 'completion' : 'completions'}
+          {data.value} {data.value === 1 ? "completion" : "completions"}
         </p>
       </div>
     );
@@ -76,7 +85,6 @@ const CustomPieTooltip = ({ active, payload }) => {
 
 export const AnalyticsPage = () => {
   const { error } = useToast();
-  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [weeklyData, setWeeklyData] = useState([]);
   const [habitPerformance, setHabitPerformance] = useState([]);
@@ -102,7 +110,7 @@ export const AnalyticsPage = () => {
         if (streakRes.success) setStreakStats(streakRes.data || {});
         if (dashRes.success) setDashboardSummary(dashRes.data || {});
       } catch (err) {
-        error(err.message || 'Failed to load analytics data');
+        error(err.message || "Failed to load analytics data");
       } finally {
         setLoading(false);
       }
@@ -135,7 +143,8 @@ export const AnalyticsPage = () => {
           Performance Analytics
         </h2>
         <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
-          Deep insights into your completion consistency, streaks, and habits breakdown
+          Deep insights into your completion consistency, streaks, and habits
+          breakdown
         </p>
       </div>
 
@@ -149,7 +158,9 @@ export const AnalyticsPage = () => {
             <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
               {dashboardSummary?.totalHabitsCount || 0}
             </h4>
-            <span className="text-[11px] text-slate-500 dark:text-neutral-400">Active tracked routines</span>
+            <span className="text-[11px] text-slate-500 dark:text-neutral-400">
+              Active tracked routines
+            </span>
           </div>
           <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
             <Layers className="w-6 h-6" />
@@ -182,7 +193,7 @@ export const AnalyticsPage = () => {
               {streakStats?.maxCurrentStreak || 0} Days
             </h4>
             <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium truncate max-w-32 block">
-              {streakStats?.bestCurrentStreakHabit || 'None active'}
+              {streakStats?.bestCurrentStreakHabit || "None active"}
             </span>
           </div>
           <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
@@ -199,7 +210,7 @@ export const AnalyticsPage = () => {
               {streakStats?.maxLongestStreak || 0} Days
             </h4>
             <span className="text-[11px] text-purple-600 dark:text-purple-400 font-medium truncate max-w-32 block">
-              {streakStats?.bestLongestStreakHabit || 'None yet'}
+              {streakStats?.bestLongestStreakHabit || "None yet"}
             </span>
           </div>
           <div className="p-3 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20">
@@ -229,7 +240,11 @@ export const AnalyticsPage = () => {
           <div className="h-64 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#525252" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  opacity={0.1}
+                  stroke="#525252"
+                />
                 <XAxis
                   dataKey="dayName"
                   stroke="#737373"
@@ -243,13 +258,16 @@ export const AnalyticsPage = () => {
                   fontSize={12}
                   tickLine={false}
                 />
-                <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(150, 150, 150, 0.1)' }} />
-                <Bar
-                  dataKey="completionRate"
-                  radius={[6, 6, 0, 0]}
-                >
+                <Tooltip
+                  content={<CustomBarTooltip />}
+                  cursor={{ fill: "rgba(150, 150, 150, 0.1)" }}
+                />
+                <Bar dataKey="completionRate" radius={[6, 6, 0, 0]}>
                   {weeklyData.map((entry, index) => (
-                    <Cell key={`bar-${index}`} fill={getBarColor(entry.completionRate)} />
+                    <Cell
+                      key={`bar-${index}`}
+                      fill={getBarColor(entry.completionRate)}
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -275,7 +293,9 @@ export const AnalyticsPage = () => {
 
           <div className="h-64 w-full flex items-center justify-center">
             {categoryStats.length === 0 ? (
-              <p className="text-xs text-slate-400">No category completion data yet.</p>
+              <p className="text-xs text-slate-400">
+                No category completion data yet.
+              </p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -292,7 +312,7 @@ export const AnalyticsPage = () => {
                     {categoryStats.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={CATEGORY_COLORS[entry.category] || '#64748B'}
+                        fill={CATEGORY_COLORS[entry.category] || "#64748B"}
                       />
                     ))}
                   </Pie>
@@ -320,12 +340,15 @@ export const AnalyticsPage = () => {
             30-Day Habit Performance Leaderboard
           </h3>
           <p className="text-xs text-slate-500 dark:text-neutral-400">
-            Ranked by overall consistency and completion rate over the last 30 days
+            Ranked by overall consistency and completion rate over the last 30
+            days
           </p>
         </div>
 
         {habitPerformance.length === 0 ? (
-          <p className="text-xs text-slate-400 text-center py-6">No habits recorded.</p>
+          <p className="text-xs text-slate-400 text-center py-6">
+            No habits recorded.
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -340,59 +363,68 @@ export const AnalyticsPage = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-neutral-800/80">
                 {habitPerformance.map((h) => {
-                  const accent = h.color || '#3B82F6';
+                  const accent = h.color || "#3B82F6";
                   return (
-                  <tr key={h.habitId} className="hover:bg-slate-50 dark:hover:bg-neutral-900/60 transition-colors">
-                    <td className="py-3.5 pr-4 flex items-center gap-3">
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
-                        style={{
-                          backgroundColor: `${accent}18`,
-                          borderColor: `${accent}40`,
-                          color: accent,
-                        }}
-                      >
-                        <DynamicIcon name={h.icon} className="w-4 h-4" />
-                      </div>
-                      <span className="font-semibold text-slate-900 dark:text-white">
-                        {h.name}
-                      </span>
-                    </td>
-                    <td className="py-3.5 pr-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-neutral-900 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-neutral-800">
-                        {h.category}
-                      </span>
-                    </td>
-                    <td className="py-3.5 pr-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 bg-slate-100 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{ width: `${h.completionRate}%`, backgroundColor: accent }}
-                          />
+                    <tr
+                      key={h.habitId}
+                      className="hover:bg-slate-50 dark:hover:bg-neutral-900/60 transition-colors"
+                    >
+                      <td className="py-3.5 pr-4 flex items-center gap-3">
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
+                          style={{
+                            backgroundColor: `${accent}18`,
+                            borderColor: `${accent}40`,
+                            color: accent,
+                          }}
+                        >
+                          <DynamicIcon name={h.icon} className="w-4 h-4" />
                         </div>
-                        <span className="font-bold text-xs" style={{ color: accent }}>
-                          {h.completionRate}%
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          {h.name}
                         </span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 pr-4 text-xs text-slate-500 dark:text-neutral-400">
-                      {h.completedIn30Days} / {h.scheduledIn30Days} days
-                    </td>
-                    <td className="py-3.5">
-                      <div
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border"
-                        style={{
-                          backgroundColor: `${accent}15`,
-                          borderColor: `${accent}35`,
-                          color: accent,
-                        }}
-                      >
-                        <Flame className="w-3.5 h-3.5 fill-current" />
-                        {h.currentStreak} d
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="py-3.5 pr-4">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-neutral-900 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-neutral-800">
+                          {h.category}
+                        </span>
+                      </td>
+                      <td className="py-3.5 pr-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-slate-100 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${h.completionRate}%`,
+                                backgroundColor: accent,
+                              }}
+                            />
+                          </div>
+                          <span
+                            className="font-bold text-xs"
+                            style={{ color: accent }}
+                          >
+                            {h.completionRate}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 pr-4 text-xs text-slate-500 dark:text-neutral-400">
+                        {h.completedIn30Days} / {h.scheduledIn30Days} days
+                      </td>
+                      <td className="py-3.5">
+                        <div
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border"
+                          style={{
+                            backgroundColor: `${accent}15`,
+                            borderColor: `${accent}35`,
+                            color: accent,
+                          }}
+                        >
+                          <Flame className="w-3.5 h-3.5 fill-current" />
+                          {h.currentStreak} d
+                        </div>
+                      </td>
+                    </tr>
                   );
                 })}
               </tbody>

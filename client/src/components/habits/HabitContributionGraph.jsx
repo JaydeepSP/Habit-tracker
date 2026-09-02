@@ -11,6 +11,13 @@ const CELL_SIZE = 12; // px — square cell
 const GAP = 3; // px — gap between cells
 const COL_STEP = CELL_SIZE + GAP; // 15px per column
 
+const formatLocalDate = (d) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export const HabitContributionGraph = ({
   completedDates = [],
   color = "#3B82F6",
@@ -20,6 +27,7 @@ export const HabitContributionGraph = ({
 
   const { weeks, monthLabels } = useMemo(() => {
     const today = new Date();
+    const todayStr = formatLocalDate(today);
     const dayOfWeek = today.getDay();
     const totalDaysToGenerate = 52 * 7 + (dayOfWeek + 1);
 
@@ -36,7 +44,7 @@ export const HabitContributionGraph = ({
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
 
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = formatLocalDate(d);
       const isDone = completedSet.has(dateStr);
       const monthIndex = d.getMonth();
       const dayIndex = d.getDay();
@@ -64,7 +72,7 @@ export const HabitContributionGraph = ({
         date: dateStr,
         dayOfWeek: dayIndex,
         isDone,
-        isToday: dateStr === today.toISOString().split("T")[0],
+        isToday: dateStr === todayStr,
       });
     }
 
