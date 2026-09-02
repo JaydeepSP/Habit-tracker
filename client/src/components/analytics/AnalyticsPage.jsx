@@ -22,12 +22,61 @@ import {
 } from 'lucide-react';
 import { statsService } from '../../services/statsService';
 import { useToast } from '../../context/ToastContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Card, Badge } from '../ui';
-import { DynamicIcon } from '../../utils/constants';
+import { DynamicIcon, CATEGORY_COLORS } from '../../utils/constants';
 import { Skeleton } from '../ui/Skeleton';
+
+// Function to get color for bar chart based on completion rate
+const getBarColor = (rate) => {
+  if (rate >= 100) return '#15803D'; // 100% Forest Green
+  if (rate >= 80) return '#22C55E';  // 80-99% Emerald Green
+  if (rate >= 40) return '#7C3AED';  // 40-79% Medium Violet
+  if (rate > 0) return '#A78BFA';   // <40% Light Lavender
+  return '#525252';                 // 0% Dark Slate/Grey
+};
+
+// Theme-adaptive custom tooltip for BarChart
+const CustomBarTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const rate = payload[0].value;
+    const color = getBarColor(rate);
+    return (
+      <div className="p-2.5 rounded-xl shadow-xl border bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-xs space-y-1">
+        <p className="font-semibold text-slate-500 dark:text-neutral-400">{label}</p>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+          <span className="font-bold">{rate}% Completion Rate</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+// Theme-adaptive custom tooltip for PieChart
+const CustomPieTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0];
+    const categoryColor = CATEGORY_COLORS[data.name] || '#64748B';
+    return (
+      <div className="p-2.5 rounded-xl shadow-xl border bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-xs space-y-1">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: categoryColor }} />
+          <span className="font-bold text-slate-900 dark:text-white">{data.name}</span>
+        </div>
+        <p className="text-slate-600 dark:text-neutral-300 pl-4.5 font-medium">
+          {data.value} {data.value === 1 ? 'completion' : 'completions'}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export const AnalyticsPage = () => {
   const { error } = useToast();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [weeklyData, setWeeklyData] = useState([]);
   const [habitPerformance, setHabitPerformance] = useState([]);
@@ -78,18 +127,6 @@ export const AnalyticsPage = () => {
     );
   }
 
-  // Monochrome shade array for pie charts
-  const monochromePieColors = [
-    '#FFFFFF',
-    '#D4D4D4',
-    '#A3A3A3',
-    '#737373',
-    '#525252',
-    '#404040',
-    '#262626',
-    '#171717',
-  ];
-
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -114,7 +151,7 @@ export const AnalyticsPage = () => {
             </h4>
             <span className="text-[11px] text-slate-500 dark:text-neutral-400">Active tracked routines</span>
           </div>
-          <div className="p-3 rounded-xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800">
+          <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
             <Layers className="w-6 h-6" />
           </div>
         </Card>
@@ -127,11 +164,11 @@ export const AnalyticsPage = () => {
             <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
               {dashboardSummary?.today?.percentage || 0}%
             </h4>
-            <span className="text-[11px] text-slate-700 dark:text-neutral-300 font-semibold">
+            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
               {dashboardSummary?.today?.completed} completed
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800">
+          <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
             <CheckCircle2 className="w-6 h-6" />
           </div>
         </Card>
@@ -144,11 +181,11 @@ export const AnalyticsPage = () => {
             <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
               {streakStats?.maxCurrentStreak || 0} Days
             </h4>
-            <span className="text-[11px] text-slate-500 dark:text-neutral-400 truncate max-w-32 block">
+            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium truncate max-w-32 block">
               {streakStats?.bestCurrentStreakHabit || 'None active'}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800">
+          <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
             <Flame className="w-6 h-6 fill-current" />
           </div>
         </Card>
@@ -161,11 +198,11 @@ export const AnalyticsPage = () => {
             <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
               {streakStats?.maxLongestStreak || 0} Days
             </h4>
-            <span className="text-[11px] text-slate-500 dark:text-neutral-400 truncate max-w-32 block">
+            <span className="text-[11px] text-purple-600 dark:text-purple-400 font-medium truncate max-w-32 block">
               {streakStats?.bestLongestStreakHabit || 'None yet'}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800">
+          <div className="p-3 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20">
             <Award className="w-6 h-6" />
           </div>
         </Card>
@@ -173,7 +210,7 @@ export const AnalyticsPage = () => {
 
       {/* Charts Section: Weekly Bar Chart + Category Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Weekly Completion Bar Chart (Solid White Bars in Dark Theme) */}
+        {/* Weekly Completion Bar Chart */}
         <Card className="p-6 space-y-4 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
           <div className="flex items-center justify-between">
             <div>
@@ -184,7 +221,7 @@ export const AnalyticsPage = () => {
                 Daily completion performance percentage
               </p>
             </div>
-            <div className="p-2 rounded-xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -206,22 +243,15 @@ export const AnalyticsPage = () => {
                   fontSize={12}
                   tickLine={false}
                 />
-                <Tooltip
-                  formatter={(value) => [`${value}%`, 'Completion Rate']}
-                  contentStyle={{
-                    backgroundColor: '#171717',
-                    borderRadius: '12px',
-                    border: '1px solid #404040',
-                    color: '#fff',
-                    fontSize: '12px',
-                  }}
-                />
+                <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(150, 150, 150, 0.1)' }} />
                 <Bar
                   dataKey="completionRate"
-                  fill="#FFFFFF"
-                  className="fill-slate-900 dark:fill-white"
                   radius={[6, 6, 0, 0]}
-                />
+                >
+                  {weeklyData.map((entry, index) => (
+                    <Cell key={`bar-${index}`} fill={getBarColor(entry.completionRate)} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -238,7 +268,7 @@ export const AnalyticsPage = () => {
                 Completed actions grouped by categories
               </p>
             </div>
-            <div className="p-2 rounded-xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800">
+            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
               <Layers className="w-4 h-4" />
             </div>
           </div>
@@ -262,20 +292,11 @@ export const AnalyticsPage = () => {
                     {categoryStats.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={monochromePieColors[index % monochromePieColors.length]}
+                        fill={CATEGORY_COLORS[entry.category] || '#64748B'}
                       />
                     ))}
                   </Pie>
-                  <Tooltip
-                    formatter={(value, name) => [`${value} completions`, name]}
-                    contentStyle={{
-                      backgroundColor: '#171717',
-                      borderRadius: '12px',
-                      border: '1px solid #404040',
-                      color: '#fff',
-                      fontSize: '12px',
-                    }}
-                  />
+                  <Tooltip content={<CustomPieTooltip />} />
                   <Legend
                     verticalAlign="bottom"
                     height={36}
