@@ -23,8 +23,8 @@ export default function App() {
         path="/"
         element={
           loading ? (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0B0F19]">
-              <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-[#080808] text-white">
+              <div className="w-8 h-8 border-3 border-neutral-800 border-t-white rounded-full animate-spin" />
             </div>
           ) : isAuthenticated ? (
             <Navigate to="/dashboard" replace />

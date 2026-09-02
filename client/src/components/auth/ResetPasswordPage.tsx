@@ -44,25 +44,25 @@ export const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0B0F19]">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#080808] text-neutral-100">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md space-y-6"
       >
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center mx-auto text-white shadow-lg shadow-brand-500/25">
+          <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center mx-auto text-white shadow-xl">
             <Lock className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl font-black text-white tracking-tight">
             Reset Password
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-neutral-400">
             Enter your new secure password below
           </p>
         </div>
 
-        <Card className="p-7 space-y-4 shadow-xl border-slate-200/90 dark:border-slate-800">
+        <Card className="p-7 space-y-4 bg-[#121212] border-neutral-800 shadow-2xl rounded-3xl">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="New Password"
@@ -101,7 +101,7 @@ export const ResetPasswordPage = () => {
           <div className="pt-2 text-center">
             <Link
               to="/login"
-              className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors"
             >
               Cancel and return to Login
             </Link>

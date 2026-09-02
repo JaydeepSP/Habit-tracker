@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Flame, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Flame, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Button, Input, Card } from '@/components/ui';
@@ -48,7 +48,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0B0F19]">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#080808] text-neutral-100">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -56,19 +56,19 @@ export const LoginPage = () => {
       >
         {/* Brand Logo & Header */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center mx-auto text-white shadow-lg shadow-brand-500/25">
-            <Flame className="w-7 h-7 fill-current" />
+          <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center mx-auto text-white shadow-xl">
+            <Flame className="w-6 h-6 fill-current" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl font-black text-white tracking-tight">
             Sign in to HabitSync
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-neutral-400">
             Build atomic daily habits and achieve consistency
           </p>
         </div>
 
         {/* Login Card */}
-        <Card className="p-7 space-y-5 shadow-xl border-slate-200/90 dark:border-slate-800">
+        <Card className="p-7 space-y-5 bg-[#121212] border-neutral-800 shadow-2xl rounded-3xl">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="Email Address"
@@ -86,12 +86,12 @@ export const LoginPage = () => {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400">
                   Password
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
+                  className="text-xs font-medium text-neutral-400 hover:text-white hover:underline transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -116,24 +116,24 @@ export const LoginPage = () => {
           </form>
 
           {/* Quick Demo Login Option */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <div className="pt-3 border-t border-neutral-800/80 space-y-2">
             <button
               type="button"
               onClick={handleDemoLogin}
-              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-neutral-900 hover:bg-neutral-800 text-white border border-neutral-800 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
             >
-              <Flame className="w-4 h-4 fill-current" />
+              <Flame className="w-4 h-4 fill-amber-500 text-amber-500" />
               Quick Demo Login (Pre-populated Data)
             </button>
           </div>
         </Card>
 
         {/* Footer Link */}
-        <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-center text-xs text-neutral-400">
           Don't have an account yet?{' '}
           <Link
             to="/register"
-            className="font-bold text-brand-600 dark:text-brand-400 hover:underline"
+            className="font-bold text-white hover:underline ml-1"
           >
             Create free account
           </Link>

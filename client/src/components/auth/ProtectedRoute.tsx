@@ -8,10 +8,10 @@ export const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) 
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0B0F19]">
+      <div className="min-h-screen flex items-center justify-center bg-[#080808]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <div className="w-9 h-9 border-3 border-neutral-800 border-t-white rounded-full animate-spin" />
+          <p className="text-xs font-medium text-neutral-400 tracking-wide">
             Loading your dashboard...
           </p>
         </div>
