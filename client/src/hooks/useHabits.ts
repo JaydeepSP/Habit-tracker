@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService } from '@/services/habitService';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import { queryKeys } from './queryKeys';
 import { Habit } from '@/types';
 
 export const useHabits = (params: Record<string, any> = {}) => {
   const queryClient = useQueryClient();
   const { success, error } = useToast();
+  const { isAuthenticated } = useAuth();
 
   const habitsQuery = useQuery<Habit[]>({
     queryKey: queryKeys.habits.list(params),
@@ -14,6 +16,7 @@ export const useHabits = (params: Record<string, any> = {}) => {
       const res = await habitService.getHabits(params);
       return res.data || [];
     },
+    enabled: isAuthenticated,
   });
 
   const createHabitMutation = useMutation({

@@ -1,17 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { statsService } from '@/services/statsService';
+import { useAuth } from '@/context/AuthContext';
 import { queryKeys } from './queryKeys';
 
 /**
  * Custom Hook for Dashboard Statistics
  */
 export const useDashboardStats = () => {
+  const { isAuthenticated } = useAuth();
+
   const query = useQuery({
     queryKey: queryKeys.stats.dashboard,
     queryFn: async () => {
       const res = await statsService.getDashboardStats();
       return res.data;
     },
+    enabled: isAuthenticated,
   });
 
   return {
@@ -30,13 +34,15 @@ export const useDashboardStats = () => {
  * Custom Hook for Monthly Calendar History
  */
 export const useCalendarStats = (year?: number, month?: number) => {
+  const { isAuthenticated } = useAuth();
+
   const query = useQuery({
     queryKey: queryKeys.stats.calendar(year, month),
     queryFn: async () => {
       const res = await statsService.getMonthlyStats(year!, month!);
       return res.data;
     },
-    enabled: !!year && !!month,
+    enabled: !!year && !!month && isAuthenticated,
   });
 
   return {
@@ -53,6 +59,8 @@ export const useCalendarStats = (year?: number, month?: number) => {
  * Custom Hook for Comprehensive Performance Analytics
  */
 export const useAnalyticsStats = () => {
+  const { isAuthenticated } = useAuth();
+
   const query = useQuery({
     queryKey: queryKeys.stats.analytics,
     queryFn: async () => {
@@ -73,6 +81,7 @@ export const useAnalyticsStats = () => {
         dashboardSummary: dashRes.success ? dashRes.data || {} : {},
       };
     },
+    enabled: isAuthenticated,
   });
 
   return {
