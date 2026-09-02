@@ -318,10 +318,19 @@ export const AnalyticsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-neutral-800/80">
-                {habitPerformance.map((h) => (
+                {habitPerformance.map((h) => {
+                  const accent = h.color || '#3B82F6';
+                  return (
                   <tr key={h.habitId} className="hover:bg-slate-50 dark:hover:bg-neutral-900/60 transition-colors">
                     <td className="py-3.5 pr-4 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-slate-100 dark:bg-neutral-900 text-slate-800 dark:text-white border border-slate-200 dark:border-neutral-800">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
+                        style={{
+                          backgroundColor: `${accent}18`,
+                          borderColor: `${accent}40`,
+                          color: accent,
+                        }}
+                      >
                         <DynamicIcon name={h.icon} className="w-4 h-4" />
                       </div>
                       <span className="font-semibold text-slate-900 dark:text-white">
@@ -337,11 +346,11 @@ export const AnalyticsPage = () => {
                       <div className="flex items-center gap-2">
                         <div className="w-20 bg-slate-100 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
                           <div
-                            className="bg-slate-900 dark:bg-white h-full rounded-full transition-all duration-500"
-                            style={{ width: `${h.completionRate}%` }}
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{ width: `${h.completionRate}%`, backgroundColor: accent }}
                           />
                         </div>
-                        <span className="font-bold text-xs text-slate-700 dark:text-neutral-300">
+                        <span className="font-bold text-xs" style={{ color: accent }}>
                           {h.completionRate}%
                         </span>
                       </div>
@@ -350,13 +359,21 @@ export const AnalyticsPage = () => {
                       {h.completedIn30Days} / {h.scheduledIn30Days} days
                     </td>
                     <td className="py-3.5">
-                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white text-xs font-bold border border-slate-200 dark:border-neutral-800">
+                      <div
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border"
+                        style={{
+                          backgroundColor: `${accent}15`,
+                          borderColor: `${accent}35`,
+                          color: accent,
+                        }}
+                      >
                         <Flame className="w-3.5 h-3.5 fill-current" />
                         {h.currentStreak} d
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
