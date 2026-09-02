@@ -1,0 +1,60 @@
+# -------------------------------------------------------------
+# Root .gitignore for Habit Tracker (MERN Monorepo)
+# -------------------------------------------------------------
+
+# 1. Environment & Sensitive Credentials (CRITICAL)
+.env
+.env.*
+!.env.example
+*.env
+*.env.local
+*.env.development
+*.env.production
+server/.env
+server/.env.*
+!server/.env.example
+client/.env
+client/.env.*
+!client/.env.example
+
+# 2. Dependencies
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# 3. Production Builds
+dist/
+*/dist/
+build/
+*/build/
+
+# 4. Logs & Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# 5. Testing & Coverage
+coverage/
+*/coverage/
+.nyc_output/
+
+# 6. Operating System & Editor Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+
+# 7. SSL / Keys / Certificates
+*.pem
+*.key
+*.cert
