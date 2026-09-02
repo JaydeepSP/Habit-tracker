@@ -65,13 +65,13 @@ export const AppLayout = () => {
           </div>
 
           {/* Action Quick Button */}
-          <Button
+          {/* <Button
             onClick={() => setCreateModalOpen(true)}
             className="w-full justify-center shadow-md bg-slate-900 hover:bg-black text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200"
           >
             <Plus className="w-4 h-4" />
             New Habit
-          </Button>
+          </Button> */}
 
           {/* Navigation Links */}
           <nav className="space-y-1 pt-2">
