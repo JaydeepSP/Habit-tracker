@@ -14,6 +14,7 @@ import { useDashboardStats, useHabits } from '@/hooks';
 import { Button, Card } from '@/components/ui';
 import { HabitCard } from '@/components/habits/HabitCard';
 import { HabitModal } from '@/components/habits/HabitModal';
+import { DeleteConfirmModal } from '@/components/habits/DeleteConfirmModal';
 import { RecommendedHabitsModal } from './RecommendedHabitsModal';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
@@ -22,12 +23,14 @@ export const DashboardPage = () => {
   const { openCreateModal } = (useOutletContext<{ openCreateModal?: () => void }>() || {});
 
   const [editingHabit, setEditingHabit] = useState<any>(null);
+  const [deletingHabit, setDeletingHabit] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isRecommendedModalOpen, setIsRecommendedModalOpen] = useState(false);
 
   // Custom API hooks
   const { today, habits, last7Days, streaks, isLoading } = useDashboardStats();
-  const { toggleCompletion, toggleActive, deleteHabit } = useHabits();
+  const { toggleCompletion, toggleActive, deleteHabit, isDeleting } = useHabits();
 
   const handleToggleCompletion = (habitId: string) => {
     toggleCompletion(habitId);
@@ -38,8 +41,18 @@ export const DashboardPage = () => {
   };
 
   const handleDelete = (habit: any) => {
-    if (window.confirm(`Are you sure you want to delete "${habit.name}"?`)) {
-      deleteHabit(habit._id);
+    setDeletingHabit(habit);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingHabit) return;
+    try {
+      await deleteHabit(deletingHabit._id);
+      setIsDeleteModalOpen(false);
+      setDeletingHabit(null);
+    } catch (err) {
+      // toast error handled by hook
     }
   };
 
@@ -283,6 +296,18 @@ export const DashboardPage = () => {
         isOpen={isRecommendedModalOpen}
         onClose={() => setIsRecommendedModalOpen(false)}
         onAdded={() => setIsRecommendedModalOpen(false)}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingHabit(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        habitName={deletingHabit?.name || ''}
+        isDeleting={isDeleting}
       />
     </div>
   );

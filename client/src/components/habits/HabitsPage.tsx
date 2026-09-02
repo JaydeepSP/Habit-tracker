@@ -6,6 +6,7 @@ import { CATEGORIES } from '@/utils/constants';
 import { Button, Card, Input } from '@/components/ui';
 import { HabitCard } from './HabitCard';
 import { HabitModal } from './HabitModal';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 import { Habit } from '@/types';
@@ -14,10 +15,12 @@ export const HabitsPage = () => {
   const { openCreateModal } = (useOutletContext<{ openCreateModal?: () => void }>() || {});
 
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+  const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // TanStack Query & Mutation Hook
-  const { habits, isLoading, toggleCompletion, toggleActive, deleteHabit } = useHabits();
+  const { habits, isLoading, toggleCompletion, toggleActive, deleteHabit, isDeleting } = useHabits();
 
   // Business UI Logic Hook for Search & Filtering
   const {
@@ -41,9 +44,19 @@ export const HabitsPage = () => {
     toggleActive(habitId);
   };
 
-  const handleDelete = (habit) => {
-    if (window.confirm(`Are you sure you want to delete "${habit.name}"? This action cannot be undone.`)) {
-      deleteHabit(habit._id);
+  const handleDelete = (habit: Habit) => {
+    setDeletingHabit(habit);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingHabit) return;
+    try {
+      await deleteHabit(deletingHabit._id);
+      setIsDeleteModalOpen(false);
+      setDeletingHabit(null);
+    } catch (err) {
+      // toast error handled by hook
     }
   };
 
@@ -198,6 +211,18 @@ export const HabitsPage = () => {
           setIsEditModalOpen(false);
           setEditingHabit(null);
         }}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingHabit(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        habitName={deletingHabit?.name || ''}
+        isDeleting={isDeleting}
       />
     </div>
   );
