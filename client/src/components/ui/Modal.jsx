@@ -25,7 +25,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
           />
 
           {/* Modal Box */}
@@ -34,16 +34,16 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0.1 }}
-            className={`relative w-full ${maxWidth} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-10 my-8`}
+            className={`relative w-full ${maxWidth} bg-white dark:bg-[#121212] border border-slate-200 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden z-10 my-8`}
           >
             {title && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-neutral-800">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                   {title}
                 </h3>
                 <button
                   onClick={onClose}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>

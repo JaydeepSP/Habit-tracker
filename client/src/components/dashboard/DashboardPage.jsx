@@ -109,11 +109,11 @@ export const DashboardPage = () => {
       {/* Dynamic Header & Greeting */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Good day, {user?.name?.split(' ')[0] || 'there'} 👋
           </h2>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-            {formattedToday} • <span className="text-brand-600 dark:text-brand-400 font-semibold">Stay consistent. Small steps every day.</span>
+          <p className="text-sm font-medium text-slate-500 dark:text-neutral-400 mt-1">
+            {formattedToday} • <span className="text-slate-900 dark:text-white font-semibold">Stay consistent. Small steps every day.</span>
           </p>
         </div>
 
@@ -121,12 +121,12 @@ export const DashboardPage = () => {
           <Button
             variant="secondary"
             onClick={() => setIsRecommendedModalOpen(true)}
-            className="text-xs"
+            className="text-xs dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-800"
           >
             <Sparkles className="w-4 h-4 text-amber-500" />
             Recommended Habits
           </Button>
-          <Button onClick={openCreateModal} className="text-xs">
+          <Button onClick={openCreateModal} className="text-xs dark:bg-white dark:text-black dark:hover:bg-neutral-200">
             <Plus className="w-4 h-4" />
             New Habit
           </Button>
@@ -135,17 +135,17 @@ export const DashboardPage = () => {
 
       {/* Progress & Stat Cards Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Today's Circular Progress Banner */}
-        <Card className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-brand-900/10 via-white to-white dark:from-brand-950/40 dark:via-slate-900 dark:to-slate-900 border-brand-200/60 dark:border-brand-900/40 shadow-sm">
+        {/* Today's Circular Progress Banner (Monochrome Black & White) */}
+        <Card className="lg:col-span-2 relative overflow-hidden bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800 shadow-md dark:shadow-xl">
           <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
-            {/* Circular Progress Gauge */}
+            {/* Circular Progress Gauge (Solid White Stroke in Dark Theme) */}
             <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                 <circle
                   cx="50"
                   cy="50"
                   r="40"
-                  className="stroke-slate-200 dark:stroke-slate-800"
+                  className="stroke-slate-100 dark:stroke-neutral-800"
                   strokeWidth="10"
                   fill="transparent"
                 />
@@ -153,7 +153,7 @@ export const DashboardPage = () => {
                   cx="50"
                   cy="50"
                   r="40"
-                  className="stroke-brand-500 transition-all duration-1000 ease-out"
+                  className="stroke-slate-900 dark:stroke-white transition-all duration-1000 ease-out"
                   strokeWidth="10"
                   strokeDasharray={2 * Math.PI * 40}
                   strokeDashoffset={
@@ -167,7 +167,7 @@ export const DashboardPage = () => {
                 <span className="text-2xl font-black text-slate-900 dark:text-white">
                   {today.percentage}%
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-widest">
                   Done
                 </span>
               </div>
@@ -179,26 +179,26 @@ export const DashboardPage = () => {
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   Today's Progress
                 </h3>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-neutral-400">
                   {today.completed} of {today.total} habits completed for today
                 </p>
               </div>
 
               {/* Mini 7-day strip */}
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-2 border-t border-slate-100 dark:border-neutral-800">
                 <div className="flex items-center justify-between gap-1 max-w-sm mx-auto sm:mx-0">
                   {dashboardData?.last7Days?.map((d) => (
                     <div key={d.date} className="flex flex-col items-center gap-1">
-                      <span className="text-[10px] font-semibold text-slate-400">
+                      <span className="text-[10px] font-semibold text-slate-400 dark:text-neutral-500">
                         {d.day}
                       </span>
                       <div
                         className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold ${
                           d.rate === 100
-                            ? 'bg-emerald-500 text-white'
+                            ? 'bg-slate-900 text-white dark:bg-white dark:text-black shadow-sm'
                             : d.rate > 0
-                            ? 'bg-brand-500/20 text-brand-500 border border-brand-500/40'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                            ? 'bg-slate-200 dark:bg-neutral-800 text-slate-900 dark:text-white border border-slate-300 dark:border-neutral-700'
+                            : 'bg-slate-100 dark:bg-neutral-900 text-slate-400 dark:text-neutral-600'
                         }`}
                         title={`${d.date}: ${d.completed}/${d.total} completed`}
                       >
@@ -213,37 +213,37 @@ export const DashboardPage = () => {
         </Card>
 
         {/* Streak & Milestone Card */}
-        <Card className="flex flex-col justify-between p-6 bg-gradient-to-br from-amber-500/5 via-white to-white dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-900 border-amber-200/50 dark:border-amber-900/30">
+        <Card className="flex flex-col justify-between p-6 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800 shadow-md dark:shadow-xl">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-neutral-400">
                 Active Streak
               </span>
-              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
+              <div className="p-2 rounded-xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800">
                 <Flame className="w-5 h-5 fill-current" />
               </div>
             </div>
             <div className="mt-3">
               <h4 className="text-3xl font-black text-slate-900 dark:text-white">
                 {streaks.currentStreak}{' '}
-                <span className="text-base font-semibold text-slate-500 dark:text-slate-400">
+                <span className="text-base font-semibold text-slate-500 dark:text-neutral-400">
                   {streaks.currentStreak === 1 ? 'day' : 'days'}
                 </span>
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                 Your personal best is{' '}
-                <span className="font-bold text-slate-800 dark:text-slate-200">
+                <span className="font-bold text-slate-800 dark:text-white">
                   {streaks.longestStreak} days
                 </span>
               </p>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-            <span className="text-slate-500 dark:text-slate-400">Detailed Analytics</span>
+          <div className="pt-4 border-t border-slate-100 dark:border-neutral-800 flex items-center justify-between text-xs">
+            <span className="text-slate-500 dark:text-neutral-400">Detailed Analytics</span>
             <Link
               to="/analytics"
-              className="inline-flex items-center gap-1 font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+              className="inline-flex items-center gap-1 font-semibold text-slate-900 dark:text-white hover:underline"
             >
               View Stats <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -258,39 +258,39 @@ export const DashboardPage = () => {
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
               Today's Habits
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-neutral-400">
               Check off your daily habits to maintain your streak
             </p>
           </div>
           <Link
             to="/habits"
-            className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-slate-900 dark:text-white hover:underline flex items-center gap-1"
           >
             Manage All ({habits.length}) <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 
         {scheduledTodayHabits.length === 0 ? (
-          <Card className="text-center py-12 px-4 space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto text-2xl">
+          <Card className="text-center py-12 px-4 space-y-4 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white flex items-center justify-center mx-auto text-2xl">
               🌱
             </div>
             <div className="max-w-md mx-auto space-y-1">
-              <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">
+              <h4 className="text-base font-bold text-slate-900 dark:text-white">
                 {habits.length === 0 ? 'No habits yet' : 'No habits scheduled for today'}
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-neutral-400">
                 {habits.length === 0
                   ? 'Start building your routine by creating your first habit or choosing from recommended presets.'
                   : 'You have no habits scheduled on this day of the week.'}
               </p>
             </div>
             <div className="flex items-center justify-center gap-3 pt-2">
-              <Button onClick={() => setIsRecommendedModalOpen(true)} variant="secondary" size="sm">
+              <Button onClick={() => setIsRecommendedModalOpen(true)} variant="secondary" size="sm" className="dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-200">
                 <Sparkles className="w-4 h-4 text-amber-500" />
                 Explore Presets
               </Button>
-              <Button onClick={openCreateModal} size="sm">
+              <Button onClick={openCreateModal} size="sm" className="dark:bg-white dark:text-black dark:hover:bg-neutral-200">
                 <Plus className="w-4 h-4" />
                 Create Habit
               </Button>

@@ -5,7 +5,7 @@ export const Skeleton = ({ className, ...props }) => {
   return (
     <div
       className={cn(
-        'animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800/80',
+        'animate-pulse rounded-xl bg-slate-200 dark:bg-neutral-800',
         className
       )}
       {...props}
@@ -27,7 +27,7 @@ export const DashboardSkeleton = () => {
 
       {/* Stats top ring skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="lg:col-span-2 p-6 rounded-2xl bg-white dark:bg-[#121212] border border-slate-200 dark:border-neutral-800">
           <div className="flex items-center gap-6">
             <Skeleton className="w-28 h-28 rounded-full shrink-0" />
             <div className="space-y-3 flex-1">
@@ -37,7 +37,7 @@ export const DashboardSkeleton = () => {
             </div>
           </div>
         </div>
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="p-6 rounded-2xl bg-white dark:bg-[#121212] border border-slate-200 dark:border-neutral-800 space-y-4">
           <Skeleton className="h-5 w-36" />
           <div className="flex items-center justify-between">
             <Skeleton className="h-10 w-24" />
@@ -53,7 +53,7 @@ export const DashboardSkeleton = () => {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4"
+              className="p-5 rounded-2xl bg-white dark:bg-[#121212] border border-slate-200 dark:border-neutral-800 space-y-4"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -65,7 +65,7 @@ export const DashboardSkeleton = () => {
                 </div>
                 <Skeleton className="w-8 h-8 rounded-lg" />
               </div>
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60">
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-neutral-800">
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-8 w-24 rounded-lg" />
               </div>

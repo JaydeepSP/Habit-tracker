@@ -90,38 +90,38 @@ export const ProfilePage = () => {
     <div className="space-y-8 max-w-4xl">
       {/* Header */}
       <div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           Account & Preferences
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
           Manage your personal profile, security credentials, and application appearance
         </p>
       </div>
 
-      {/* Account Overview Header Card */}
-      <Card className="p-6 flex items-center gap-5 bg-gradient-to-r from-brand-600/10 via-transparent to-transparent">
-        <div className="w-16 h-16 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-brand-500/20">
+      {/* Account Overview Header Card (Monochrome Black & White) */}
+      <Card className="p-6 flex items-center gap-5 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
+        <div className="w-16 h-16 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-black flex items-center justify-center font-black text-2xl shadow-lg">
           {user?.name?.charAt(0).toUpperCase() || 'U'}
         </div>
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">
             {user?.name}
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
             {user?.email} • Member since {memberSince}
           </p>
           <div className="flex items-center gap-1.5 mt-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <ShieldCheck className="w-3 h-3" /> Account Active
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-neutral-200 border border-slate-200 dark:border-neutral-800">
+              <ShieldCheck className="w-3.5 h-3.5" /> Account Active
             </span>
           </div>
         </div>
       </Card>
 
       {/* Profile Details Form */}
-      <Card className="p-6 space-y-5">
-        <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <User className="w-5 h-5 text-brand-500" />
+      <Card className="p-6 space-y-5 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
+        <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-neutral-800">
+          <User className="w-5 h-5 text-slate-900 dark:text-white" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white">
             Personal Information
           </h3>
@@ -145,11 +145,11 @@ export const ProfilePage = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-neutral-400">
               Timezone
             </label>
             <select
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-neutral-600"
               {...registerProfile('timezone')}
             >
               <option value="UTC">UTC (Universal Time)</option>
@@ -165,7 +165,7 @@ export const ProfilePage = () => {
           </div>
 
           <div className="flex justify-end pt-2">
-            <Button type="submit" isLoading={isUpdatingProfile}>
+            <Button type="submit" isLoading={isUpdatingProfile} className="dark:bg-white dark:text-black dark:hover:bg-neutral-200">
               Save Profile Changes
             </Button>
           </div>
@@ -173,11 +173,11 @@ export const ProfilePage = () => {
       </Card>
 
       {/* Appearance / Theme Preferences */}
-      <Card className="p-6 space-y-4">
-        <h3 className="text-base font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800">
+      <Card className="p-6 space-y-4 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-neutral-800">
           Appearance & Theme
         </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-slate-500 dark:text-neutral-400">
           Choose between Dark, Light, or System-synchronized aesthetic
         </p>
 
@@ -187,8 +187,8 @@ export const ProfilePage = () => {
             onClick={() => setTheme('light')}
             className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
               theme === 'light'
-                ? 'bg-brand-500/10 border-brand-500 text-brand-600 font-bold'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                ? 'bg-slate-900 text-white font-bold border-slate-900'
+                : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-400'
             }`}
           >
             <Sun className="w-5 h-5 text-amber-500" />
@@ -200,11 +200,11 @@ export const ProfilePage = () => {
             onClick={() => setTheme('dark')}
             className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
               theme === 'dark'
-                ? 'bg-brand-500/10 border-brand-500 text-brand-400 font-bold'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                ? 'bg-white text-black font-bold border-white'
+                : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-400'
             }`}
           >
-            <Moon className="w-5 h-5 text-indigo-400" />
+            <Moon className="w-5 h-5 text-slate-800 dark:text-black" />
             <span className="text-xs">Dark</span>
           </button>
 
@@ -213,20 +213,20 @@ export const ProfilePage = () => {
             onClick={() => setTheme('system')}
             className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
               theme === 'system'
-                ? 'bg-brand-500/10 border-brand-500 text-brand-500 font-bold'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-black font-bold'
+                : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-400'
             }`}
           >
-            <Monitor className="w-5 h-5 text-slate-400" />
+            <Monitor className="w-5 h-5" />
             <span className="text-xs">System</span>
           </button>
         </div>
       </Card>
 
       {/* Change Password Form */}
-      <Card className="p-6 space-y-5">
-        <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <Lock className="w-5 h-5 text-rose-500" />
+      <Card className="p-6 space-y-5 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
+        <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-neutral-800">
+          <Lock className="w-5 h-5 text-slate-900 dark:text-white" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white">
             Security & Password
           </h3>
@@ -269,7 +269,7 @@ export const ProfilePage = () => {
           </div>
 
           <div className="flex justify-end pt-2">
-            <Button type="submit" variant="secondary" isLoading={isUpdatingPassword}>
+            <Button type="submit" variant="secondary" isLoading={isUpdatingPassword} className="dark:bg-neutral-900 dark:border-neutral-800 dark:text-white dark:hover:bg-neutral-800">
               Update Password
             </Button>
           </div>

@@ -24,13 +24,13 @@ export const Button = React.forwardRef(
 
     const variants = {
       primary:
-        'bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/20 focus:ring-brand-500 border border-transparent active:scale-[0.98]',
+        'bg-slate-900 hover:bg-black text-white shadow-sm dark:bg-white dark:text-black dark:hover:bg-neutral-200 focus:ring-slate-400 border border-transparent active:scale-[0.98]',
       secondary:
-        'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700/60 focus:ring-slate-400',
+        'bg-slate-100 dark:bg-neutral-900 hover:bg-slate-200 dark:hover:bg-neutral-800 text-slate-800 dark:text-neutral-100 border border-slate-200 dark:border-neutral-800 focus:ring-slate-400',
       outline:
-        'border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 focus:ring-brand-500',
+        'border border-slate-300 dark:border-neutral-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800/60 focus:ring-slate-400',
       ghost:
-        'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60',
+        'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800/60',
       danger:
         'bg-rose-600 hover:bg-rose-700 text-white shadow-sm focus:ring-rose-500 active:scale-[0.98]',
       success:
@@ -85,14 +85,14 @@ export const Input = React.forwardRef(
     return (
       <div className="w-full space-y-1.5">
         {label && (
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-neutral-400">
             {label}
           </label>
         )}
         <input
           ref={ref}
           className={cn(
-            'w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 border-slate-200 dark:border-slate-800 shadow-sm',
+            'w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 placeholder-slate-400 dark:placeholder-neutral-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-neutral-600 focus:border-slate-400 dark:focus:border-neutral-600 border-slate-200 dark:border-neutral-800 shadow-sm',
             error &&
               'border-rose-500 focus:ring-rose-500/50 focus:border-rose-500',
             className
@@ -101,7 +101,7 @@ export const Input = React.forwardRef(
         />
         {error && <p className="text-xs text-rose-500 font-medium">{error}</p>}
         {helperText && !error && (
-          <p className="text-xs text-slate-500 dark:text-slate-400">{helperText}</p>
+          <p className="text-xs text-slate-500 dark:text-neutral-400">{helperText}</p>
         )}
       </div>
     );
@@ -113,9 +113,9 @@ export const Card = ({ className, children, hoverEffect = false, ...props }) => 
   return (
     <div
       className={cn(
-        'bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm transition-all duration-200',
+        'bg-white dark:bg-[#121212] border border-slate-200/80 dark:border-neutral-800 rounded-2xl p-5 shadow-sm transition-all duration-200',
         hoverEffect &&
-          'hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5',
+          'hover:shadow-md hover:border-slate-300 dark:hover:border-neutral-700 hover:-translate-y-0.5',
         className
       )}
       {...props}
@@ -129,7 +129,7 @@ export const Badge = ({ children, color, className }) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60',
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-neutral-900 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-neutral-800',
         className
       )}
       style={color ? { backgroundColor: `${color}15`, color, borderColor: `${color}40` } : undefined}

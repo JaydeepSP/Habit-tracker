@@ -88,19 +88,19 @@ export const CalendarPage = () => {
   const firstDayOfMonthIndex =
     calendarData?.calendar?.length > 0 ? calendarData.calendar[0].dayOfWeek : 0;
 
-  // Level color indicator classes
-  const getLevelClasses = (level, isSelected) => {
+  // 5-level color scale — matches heatmap legend
+  const getLevelStyles = (level) => {
     switch (level) {
       case 4: // 100%
-        return 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30';
+        return { bg: '#15803D', text: 'white', shadow: '0 0 12px #15803D80' };
       case 3: // 80-99%
-        return 'bg-emerald-500/80 text-white';
+        return { bg: '#22C55E', text: 'white', shadow: '0 0 8px #22C55E60' };
       case 2: // 40-79%
-        return 'bg-brand-500/70 text-white';
+        return { bg: '#7C3AED', text: 'white', shadow: undefined };
       case 1: // <40%
-        return 'bg-brand-500/20 text-brand-600 dark:text-brand-400 border border-brand-500/30';
+        return { bg: '#A78BFA', text: 'white', shadow: undefined };
       default: // 0%
-        return 'bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
+        return { bg: null, text: null, shadow: null };
     }
   };
 
@@ -228,15 +228,23 @@ export const CalendarPage = () => {
                   day: '2-digit',
                 }).format(new Date());
 
-              return (
+                  const levelStyle = getLevelStyles(day.level);
+                  return (
                 <button
                   key={day.date}
                   onClick={() => handleDateClick(day)}
+                  style={{
+                    backgroundColor: levelStyle.bg || undefined,
+                    color: levelStyle.text || undefined,
+                    boxShadow: levelStyle.shadow || undefined,
+                  }}
                   className={`h-20 sm:h-24 p-2 sm:p-2.5 rounded-xl border flex flex-col justify-between transition-all duration-200 text-left cursor-pointer group ${
-                    isToday
-                      ? 'border-brand-500 ring-2 ring-brand-500/20'
-                      : 'border-slate-200/80 dark:border-slate-800'
-                  } ${getLevelClasses(day.level)}`}
+                    levelStyle.bg
+                      ? 'border-transparent'
+                      : 'bg-slate-100 dark:bg-neutral-900/90 text-slate-700 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-neutral-800 border border-slate-200/60 dark:border-neutral-800/80'
+                  } ${
+                    isToday ? 'ring-2 ring-offset-1 ring-slate-400 dark:ring-neutral-300' : ''
+                  }`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <span
@@ -273,27 +281,27 @@ export const CalendarPage = () => {
           </div>
         )}
 
-        {/* Legend */}
-        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
-          <span className="font-semibold text-slate-700 dark:text-slate-300">Legend:</span>
+        {/* Legend — same 5-color scale as heatmap */}
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 mt-6 pt-4 border-t border-slate-100 dark:border-neutral-800 text-xs text-slate-500 dark:text-neutral-400">
+          <span className="font-semibold text-slate-700 dark:text-neutral-300">Legend:</span>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700" />
+            <div className="w-3.5 h-3.5 rounded bg-slate-100 dark:bg-neutral-900 border border-slate-300 dark:border-neutral-800" />
             <span>0%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-brand-500/30" />
+            <div className="w-3.5 h-3.5 rounded" style={{ backgroundColor: '#A78BFA' }} />
             <span>&lt;40%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-brand-500/70" />
+            <div className="w-3.5 h-3.5 rounded" style={{ backgroundColor: '#7C3AED' }} />
             <span>40-79%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-emerald-500/80" />
+            <div className="w-3.5 h-3.5 rounded" style={{ backgroundColor: '#22C55E' }} />
             <span>80-99%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-emerald-600" />
+            <div className="w-3.5 h-3.5 rounded" style={{ backgroundColor: '#15803D' }} />
             <span>100%</span>
           </div>
         </div>

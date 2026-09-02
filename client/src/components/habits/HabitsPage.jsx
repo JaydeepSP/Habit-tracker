@@ -111,28 +111,28 @@ export const HabitsPage = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <Card className="p-4 space-y-4">
+      <Card className="p-4 space-y-4 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Search Input */}
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500" />
             <input
               type="text"
               placeholder="Search habits..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+              className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-neutral-600"
             />
           </div>
 
           {/* Status Tabs */}
-          <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800/80 p-1 border border-slate-200 dark:border-slate-800">
+          <div className="flex rounded-xl bg-slate-100 dark:bg-neutral-900 p-1 border border-slate-200 dark:border-neutral-800">
             <button
               onClick={() => setStatusFilter('all')}
               className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 statusFilter === 'all'
-                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400'
+                  ? 'bg-white dark:bg-neutral-800 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-neutral-400'
               }`}
             >
               All ({habits.length})
@@ -141,8 +141,8 @@ export const HabitsPage = () => {
               onClick={() => setStatusFilter('active')}
               className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 statusFilter === 'active'
-                  ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400'
+                  ? 'bg-white dark:bg-neutral-800 text-slate-900 dark:text-white font-bold shadow-sm'
+                  : 'text-slate-500 dark:text-neutral-400'
               }`}
             >
               Active ({habits.filter((h) => h.isActive).length})
@@ -151,8 +151,8 @@ export const HabitsPage = () => {
               onClick={() => setStatusFilter('paused')}
               className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 statusFilter === 'paused'
-                  ? 'bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400'
+                  ? 'bg-white dark:bg-neutral-800 text-slate-900 dark:text-white font-bold shadow-sm'
+                  : 'text-slate-500 dark:text-neutral-400'
               }`}
             >
               Paused ({habits.filter((h) => !h.isActive).length})
@@ -164,7 +164,7 @@ export const HabitsPage = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-neutral-600"
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>

@@ -1,23 +1,26 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 
 /**
  * GitHub Contribution Style Heatmap Grid
- * Displays ~52 weeks (365 days) aligned by day-of-week (Sun-Sat or Mon-Sun)
+ * Fixed 12×12px cells with 3px gap — always perfectly square.
+ * Month labels placed at exact pixel positions (no overlap).
+ * Uses the habit's selected accent color with shades for Less → More.
  */
+
+const CELL_SIZE = 12; // px — square cell
+const GAP = 3; // px — gap between cells
+const COL_STEP = CELL_SIZE + GAP; // 15px per column
+
 export const HabitContributionGraph = ({
   completedDates = [],
-  color = '#3B82F6', // Default blue matching habi.app
+  color = "#3B82F6",
   onDayClick,
 }) => {
   const completedSet = useMemo(() => new Set(completedDates), [completedDates]);
 
-  // Generate 52 weeks of dates ending on today
-  const { weeks, monthLabels, totalDays, completedCount } = useMemo(() => {
+  const { weeks, monthLabels } = useMemo(() => {
     const today = new Date();
-    const dates = [];
-
-    // Go back 52 full weeks (364 days + current week offset)
-    const dayOfWeek = today.getDay(); // 0 = Sun, 6 = Sat
+    const dayOfWeek = today.getDay();
     const totalDaysToGenerate = 52 * 7 + (dayOfWeek + 1);
 
     const startDate = new Date(today);
@@ -27,67 +30,69 @@ export const HabitContributionGraph = ({
     let currentWeek = [];
     const months = [];
     let lastMonth = -1;
-    let completed = 0;
+    let lastColIndex = -4; // Enforce min 4-column gap between labels
 
     for (let i = 0; i < totalDaysToGenerate; i++) {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
 
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = d.toISOString().split("T")[0];
       const isDone = completedSet.has(dateStr);
-      if (isDone) completed++;
-
       const monthIndex = d.getMonth();
-      const dayIndex = d.getDay(); // 0=Sun ... 6=Sat
+      const dayIndex = d.getDay();
 
-      // If Sunday (start of new column/week), push previous week
       if (dayIndex === 0 && currentWeek.length > 0) {
         generatedWeeks.push(currentWeek);
         currentWeek = [];
       }
 
-      // Check if we should place a month label for this week column
-      if (dayIndex === 0 && monthIndex !== lastMonth) {
+      // Place month label only if: new month AND at least 4 cols gap from prev label
+      if (
+        dayIndex === 0 &&
+        monthIndex !== lastMonth &&
+        generatedWeeks.length - lastColIndex >= 4
+      ) {
         months.push({
           colIndex: generatedWeeks.length,
-          name: d.toLocaleString('default', { month: 'short' }),
+          name: d.toLocaleString("default", { month: "short" }),
         });
         lastMonth = monthIndex;
+        lastColIndex = generatedWeeks.length;
       }
 
       currentWeek.push({
         date: dateStr,
         dayOfWeek: dayIndex,
         isDone,
-        isToday: dateStr === today.toISOString().split('T')[0],
-        isFuture: d > today,
+        isToday: dateStr === today.toISOString().split("T")[0],
       });
     }
 
-    if (currentWeek.length > 0) {
-      generatedWeeks.push(currentWeek);
-    }
+    if (currentWeek.length > 0) generatedWeeks.push(currentWeek);
 
-    return {
-      weeks: generatedWeeks,
-      monthLabels: months,
-      totalDays: totalDaysToGenerate,
-      completedCount: completed,
-    };
+    return { weeks: generatedWeeks, monthLabels: months };
   }, [completedSet]);
 
-  const daysOfWeekLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const daysOfWeekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Total grid width in px (used for the month label row)
+  const gridWidth = weeks.length * COL_STEP - GAP;
+  // Label column width (for "Sun" etc.)
+  const labelColWidth = 28;
 
   return (
-    <div className="w-full select-none overflow-x-auto pt-2 pb-1 scrollbar-thin">
-      <div className="min-w-[720px] max-w-full">
-        {/* Month Labels Header */}
-        <div className="relative h-4 mb-1.5 ml-8 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+    <div className="w-full select-none overflow-x-auto pt-2 pb-1">
+      <div style={{ minWidth: gridWidth + labelColWidth + 8 }}>
+        {/* Month Labels — exact px positioning, no overlap */}
+        <div
+          className="relative h-4 mb-2 text-[11px] font-medium text-slate-400 dark:text-neutral-500"
+          style={{ marginLeft: labelColWidth + 8 }}
+        >
           {monthLabels.map((m, idx) => (
             <span
               key={idx}
-              className="absolute transform -translate-x-1/2"
-              style={{ left: `${(m.colIndex / weeks.length) * 100}%` }}
+              className="absolute"
+              style={{ left: m.colIndex * COL_STEP }}
             >
               {m.name}
             </span>
@@ -95,59 +100,82 @@ export const HabitContributionGraph = ({
         </div>
 
         {/* Graph Body */}
-        <div className="flex items-start gap-2">
-          {/* Day of week labels on left */}
-          <div className="flex flex-col justify-between h-[98px] text-[10px] font-medium text-slate-400 dark:text-slate-500 pr-1 select-none">
-            {daysOfWeekLabels.map((day, idx) => (
-              <span key={day} className="leading-none">
+        <div className="flex items-start" style={{ gap: 8 }}>
+          {/* Day-of-week labels — each row is exactly CELL_SIZE px tall */}
+          <div
+            className="flex flex-col shrink-0"
+            style={{ gap: GAP, width: labelColWidth }}
+          >
+            {daysOfWeekLabels.map((day) => (
+              <div
+                key={day}
+                style={{ height: CELL_SIZE }}
+                className="flex items-center text-[10px] font-medium text-slate-400 dark:text-neutral-500 leading-none"
+              >
                 {day}
-              </span>
+              </div>
             ))}
           </div>
 
-          {/* Grid Columns (Weeks) */}
-          <div className="flex-1 flex gap-[3px]">
+          {/* Grid — fixed-size square cells */}
+          <div className="flex" style={{ gap: GAP }}>
             {weeks.map((week, wIdx) => (
-              <div key={wIdx} className="flex flex-col gap-[3px] flex-1">
-                {week.map((day) => {
-                  return (
-                    <div
-                      key={day.date}
-                      onClick={() => onDayClick && onDayClick(day)}
-                      title={`${day.date}: ${day.isDone ? 'Completed' : 'No activity'}`}
-                      style={{
-                        backgroundColor: day.isDone
-                          ? color
-                          : undefined,
-                      }}
-                      className={`w-full aspect-square rounded-[3px] transition-all cursor-pointer ${
-                        day.isDone
-                          ? 'shadow-[0_0_8px_rgba(59,130,246,0.5)]'
-                          : 'bg-slate-200/80 dark:bg-slate-800/80 hover:bg-slate-300 dark:hover:bg-slate-700/80 border border-slate-300/40 dark:border-slate-800/60'
-                      } ${day.isToday ? 'ring-1 ring-white dark:ring-slate-300' : ''}`}
-                    />
-                  );
-                })}
+              <div key={wIdx} className="flex flex-col" style={{ gap: GAP }}>
+                {week.map((day) => (
+                  <div
+                    key={day.date}
+                    onClick={() => onDayClick && onDayClick(day)}
+                    title={`${day.date}: ${day.isDone ? "Completed" : "No activity"}`}
+                    style={{
+                      width: CELL_SIZE,
+                      height: CELL_SIZE,
+                      backgroundColor: day.isDone ? color : undefined,
+                      boxShadow: day.isDone ? `0 0 8px ${color}55` : undefined,
+                      flexShrink: 0,
+                    }}
+                    className={`rounded-[3px] cursor-pointer transition-colors ${
+                      day.isDone
+                        ? ""
+                        : "bg-slate-200/80 dark:bg-neutral-900 hover:bg-slate-300 dark:hover:bg-neutral-800 border border-slate-300/40 dark:border-neutral-800/80"
+                    } ${day.isToday ? "ring-1 ring-offset-0 ring-white/80 dark:ring-neutral-300" : ""}`}
+                  />
+                ))}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center justify-end gap-1.5 mt-3 text-[11px] text-slate-400 dark:text-slate-500">
+        {/* Legend — shades of selected accent color */}
+        <div className="flex items-center justify-end gap-1.5 mt-3 text-[11px] text-slate-400 dark:text-neutral-500">
           <span>Less</span>
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-slate-200 dark:bg-slate-800" />
           <div
-            className="w-2.5 h-2.5 rounded-[2px]"
-            style={{ backgroundColor: `${color}55` }}
+            style={{ width: CELL_SIZE, height: CELL_SIZE }}
+            className="rounded-[2px] bg-slate-200 dark:bg-neutral-900 border border-slate-300/40 dark:border-neutral-800"
           />
           <div
-            className="w-2.5 h-2.5 rounded-[2px]"
-            style={{ backgroundColor: `${color}99` }}
+            style={{
+              width: CELL_SIZE,
+              height: CELL_SIZE,
+              backgroundColor: `${color}35`,
+            }}
+            className="rounded-[2px]"
           />
           <div
-            className="w-2.5 h-2.5 rounded-[2px] shadow-sm"
-            style={{ backgroundColor: color }}
+            style={{
+              width: CELL_SIZE,
+              height: CELL_SIZE,
+              backgroundColor: `${color}80`,
+            }}
+            className="rounded-[2px]"
+          />
+          <div
+            style={{
+              width: CELL_SIZE,
+              height: CELL_SIZE,
+              backgroundColor: color,
+              boxShadow: `0 0 4px ${color}80`,
+            }}
+            className="rounded-[2px]"
           />
           <span>More</span>
         </div>
