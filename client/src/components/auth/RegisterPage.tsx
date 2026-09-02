@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Flame, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { Button, Input, Card } from '../ui';
-import { RecommendedHabitsModal } from '../dashboard/RecommendedHabitsModal';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { Button, Input, Card } from '@/components/ui';
+import { RecommendedHabitsModal } from '@/components/dashboard/RecommendedHabitsModal';
 
 export const RegisterPage = () => {
   const { register: registerUser } = useAuth();

@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Modal } from '../ui/Modal';
-import { Button, Input } from '../ui';
+import { Modal } from '@/components/ui/Modal';
+import { Button, Input } from '@/components/ui';
 import {
   CATEGORIES,
   COLOR_PALETTES,
   AVAILABLE_ICONS,
   DynamicIcon,
   DAYS_OF_WEEK,
-} from '../../utils/constants';
-import { useHabits } from '../../hooks';
+} from '@/utils/constants';
+import { useHabits } from '@/hooks';
 
 export const HabitModal = ({ isOpen, onClose, habitToEdit = null, onSaved }) => {
   const isEditing = !!habitToEdit;

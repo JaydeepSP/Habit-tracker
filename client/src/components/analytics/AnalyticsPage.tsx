@@ -20,10 +20,10 @@ import {
   Calendar,
   Layers,
 } from "lucide-react";
-import { useAnalyticsStats } from "../../hooks";
-import { Card, Badge } from "../ui";
-import { DynamicIcon, CATEGORY_COLORS } from "../../utils/constants";
-import { Skeleton } from "../ui/Skeleton";
+import { useAnalyticsStats } from '@/hooks';
+import { Card, Badge } from '@/components/ui';
+import { DynamicIcon, CATEGORY_COLORS } from '@/utils/constants';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 // Function to get color for bar chart based on completion rate
 const getBarColor = (rate) => {

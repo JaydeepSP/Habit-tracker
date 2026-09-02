@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { completionService } from '../services/completionService';
-import { useToast } from '../context/ToastContext';
+import { completionService } from '@/services/completionService';
+import { useToast } from '@/context/ToastContext';
 import { queryKeys } from './queryKeys';
-import { HabitCompletion } from '../types';
+import { HabitCompletion } from '@/types';
 
 export const useCompletions = () => {
   const queryClient = useQueryClient();

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { habitService } from '../services/habitService';
-import { useToast } from '../context/ToastContext';
+import { habitService } from '@/services/habitService';
+import { useToast } from '@/context/ToastContext';
 import { queryKeys } from './queryKeys';
-import { Habit } from '../types';
+import { Habit } from '@/types';
 
 export const useHabits = (params: Record<string, any> = {}) => {
   const queryClient = useQueryClient();

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Clock } from 'lucide-react';
-import { useCalendarStats, useDateCompletions } from '../../hooks';
-import { Card, Button, Badge } from '../ui';
-import { Modal } from '../ui/Modal';
-import { DynamicIcon } from '../../utils/constants';
-import { Skeleton } from '../ui/Skeleton';
+import { useCalendarStats, useDateCompletions } from '@/hooks';
+import { Card, Button, Badge } from '@/components/ui';
+import { Modal } from '@/components/ui/Modal';
+import { DynamicIcon } from '@/utils/constants';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export const CalendarPage = () => {
   const today = new Date();

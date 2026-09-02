@@ -5,6 +5,7 @@ export interface User {
   avatar?: string;
   role?: string;
   theme?: string;
+  timezone?: string;
   createdAt?: string;
   updatedAt?: string;
 }

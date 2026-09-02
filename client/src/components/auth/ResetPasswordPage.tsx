@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, ArrowRight } from 'lucide-react';
-import { authService } from '../../services/authService';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { Button, Input, Card } from '../ui';
+import { authService } from '@/services/authService';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { Button, Input, Card } from '@/components/ui';
 
 export const ResetPasswordPage = () => {
   const { token } = useParams();

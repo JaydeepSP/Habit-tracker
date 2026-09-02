@@ -9,13 +9,13 @@ import {
   ArrowRight,
   TrendingUp,
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useDashboardStats, useHabits } from '../../hooks';
-import { Button, Card } from '../ui';
-import { HabitCard } from '../habits/HabitCard';
-import { HabitModal } from '../habits/HabitModal';
+import { useAuth } from '@/context/AuthContext';
+import { useDashboardStats, useHabits } from '@/hooks';
+import { Button, Card } from '@/components/ui';
+import { HabitCard } from '@/components/habits/HabitCard';
+import { HabitModal } from '@/components/habits/HabitModal';
 import { RecommendedHabitsModal } from './RecommendedHabitsModal';
-import { DashboardSkeleton } from '../ui/Skeleton';
+import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
 export const DashboardPage = () => {
   const { user } = useAuth();

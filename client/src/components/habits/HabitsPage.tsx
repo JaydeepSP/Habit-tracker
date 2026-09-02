@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Plus, Search, Filter, CheckCircle2, PauseCircle } from 'lucide-react';
-import { useHabits, useHabitFilters } from '../../hooks';
-import { CATEGORIES } from '../../utils/constants';
-import { Button, Card, Input } from '../ui';
+import { useHabits, useHabitFilters } from '@/hooks';
+import { CATEGORIES } from '@/utils/constants';
+import { Button, Card, Input } from '@/components/ui';
 import { HabitCard } from './HabitCard';
 import { HabitModal } from './HabitModal';
-import { Skeleton } from '../ui/Skeleton';
+import { Skeleton } from '@/components/ui/Skeleton';
 
-import { Habit } from '../../types';
+import { Habit } from '@/types';
 
 export const HabitsPage = () => {
   const { openCreateModal } = (useOutletContext<{ openCreateModal?: () => void }>() || {});

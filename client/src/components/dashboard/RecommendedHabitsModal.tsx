@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Modal } from '../ui/Modal';
-import { Button } from '../ui';
-import { DynamicIcon } from '../../utils/constants';
-import { useHabits } from '../../hooks';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui';
+import { DynamicIcon } from '@/utils/constants';
+import { useHabits } from '@/hooks';
 import { Check } from 'lucide-react';
-import type { HabitCategory, HabitFrequency, Habit } from '../../types';
+import type { HabitCategory, HabitFrequency, Habit } from '@/types';
 
 interface RecommendedHabit {
   name: string;

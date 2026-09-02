@@ -1,17 +1,17 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { AppLayout } from './components/layout/AppLayout';
-import { LoginPage } from './components/auth/LoginPage';
-import { RegisterPage } from './components/auth/RegisterPage';
-import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
-import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
-import { DashboardPage } from './components/dashboard/DashboardPage';
-import { HabitsPage } from './components/habits/HabitsPage';
-import { CalendarPage } from './components/calendar/CalendarPage';
-import { AnalyticsPage } from './components/analytics/AnalyticsPage';
-import { ProfilePage } from './components/profile/ProfilePage';
+import { useAuth } from '@/context/AuthContext';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { LoginPage } from '@/components/auth/LoginPage';
+import { RegisterPage } from '@/components/auth/RegisterPage';
+import { ForgotPasswordPage } from '@/components/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/components/auth/ResetPasswordPage';
+import { DashboardPage } from '@/components/dashboard/DashboardPage';
+import { HabitsPage } from '@/components/habits/HabitsPage';
+import { CalendarPage } from '@/components/calendar/CalendarPage';
+import { AnalyticsPage } from '@/components/analytics/AnalyticsPage';
+import { ProfilePage } from '@/components/profile/ProfilePage';
 
 export default function App() {
   const { isAuthenticated, loading } = useAuth();

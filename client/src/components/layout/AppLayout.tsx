@@ -12,10 +12,10 @@ import {
   Flame,
   Plus,
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { Button } from '../ui';
-import { HabitModal } from '../habits/HabitModal';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { Button } from '@/components/ui';
+import { HabitModal } from '@/components/habits/HabitModal';
 
 export const AppLayout = () => {
   const { user, logout } = useAuth();

@@ -1,10 +1,22 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/authService';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { authService } from '@/services/authService';
+import type { User } from '@/types';
 
-const AuthContext = createContext(null);
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<any>;
+  register: (userData: any) => Promise<any>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  updateUser: (updatedUser: User) => void;
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Check auth persistence on load
@@ -27,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email: string, password: string) => {
     const res = await authService.login({ email, password });
     if (res.success && res.data?.user) {
       setUser(res.data.user);
@@ -35,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
-  const register = async (userData) => {
+  const register = async (userData: any) => {
     const res = await authService.register(userData);
     if (res.success && res.data?.user) {
       setUser(res.data.user);
@@ -51,11 +63,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateUser = (updatedUser) => {
+  const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
     loading,
@@ -69,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

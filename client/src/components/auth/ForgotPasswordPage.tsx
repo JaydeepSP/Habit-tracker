@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { KeyRound, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { authService } from '../../services/authService';
-import { useToast } from '../../context/ToastContext';
-import { Button, Input, Card } from '../ui';
+import { authService } from '@/services/authService';
+import { useToast } from '@/context/ToastContext';
+import { Button, Input, Card } from '@/components/ui';
 
 export const ForgotPasswordPage = () => {
   const { error } = useToast();

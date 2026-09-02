@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Edit3, Trash2, Pause, Play } from 'lucide-react';
-import { DynamicIcon } from '../../utils/constants';
+import { DynamicIcon } from '@/utils/constants';
 import { HabitContributionGraph } from './HabitContributionGraph';
-import { useCompletions } from '../../hooks';
+import { useCompletions } from '@/hooks';
 
-import { Habit } from '../../types';
+import { Habit } from '@/types';
 
 export interface HabitCardProps {
   habit: Habit;

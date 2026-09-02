@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { statsService } from '../services/statsService';
+import { statsService } from '@/services/statsService';
 import { queryKeys } from './queryKeys';
 
 /**
@@ -29,11 +29,11 @@ export const useDashboardStats = () => {
 /**
  * Custom Hook for Monthly Calendar History
  */
-export const useCalendarStats = (year, month) => {
+export const useCalendarStats = (year?: number, month?: number) => {
   const query = useQuery({
     queryKey: queryKeys.stats.calendar(year, month),
     queryFn: async () => {
-      const res = await statsService.getMonthlyStats(year, month);
+      const res = await statsService.getMonthlyStats(year!, month!);
       return res.data;
     },
     enabled: !!year && !!month,

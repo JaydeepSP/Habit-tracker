@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { userService } from '../../services/userService';
-import { Card, Button, Input } from '../ui';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { userService } from '@/services/userService';
+import { Card, Button, Input } from '@/components/ui';
 import { User, Lock, ShieldCheck } from 'lucide-react';
 
 export const ProfilePage = () => {
