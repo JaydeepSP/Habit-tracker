@@ -5,6 +5,7 @@
   "main": "src/server.ts",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "start": "tsx src/server.ts",
     "dev": "nodemon --exec tsx src/server.ts",
     "seed": "tsx src/seed/seed.ts"

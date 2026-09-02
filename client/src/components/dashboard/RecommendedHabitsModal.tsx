@@ -128,7 +128,7 @@ export const RecommendedHabitsModal: React.FC<RecommendedHabitsModalProps> = ({
       maxWidth="max-w-2xl"
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-500 dark:text-neutral-400">
           Select proven starter habits to add to your daily dashboard. You can customize them anytime.
         </p>
 
@@ -139,31 +139,31 @@ export const RecommendedHabitsModal: React.FC<RecommendedHabitsModalProps> = ({
               <div
                 key={h.name}
                 onClick={() => toggleSelect(idx)}
-                className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 ${
                   isSelected
-                    ? 'bg-brand-500/10 border-brand-500/50 shadow-sm'
-                    : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                    ? 'bg-slate-100 dark:bg-neutral-900 border-slate-900 dark:border-white shadow-md'
+                    : 'bg-white dark:bg-[#181818] border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700'
                 }`}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${h.color}20`, color: h.color }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-slate-200/50 dark:border-neutral-800"
+                  style={{ backgroundColor: `${h.color}15`, color: h.color }}
                 >
                   <DynamicIcon name={h.icon} className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-neutral-100 truncate">
                     {h.name}
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
                     {h.description}
                   </p>
                 </div>
                 <div
-                  className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
+                  className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
-                      ? 'bg-brand-600 text-white'
-                      : 'border border-slate-300 dark:border-slate-600'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-black shadow-sm'
+                      : 'border border-slate-300 dark:border-neutral-700'
                   }`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -173,8 +173,8 @@ export const RecommendedHabitsModal: React.FC<RecommendedHabitsModalProps> = ({
           })}
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-neutral-800">
+          <span className="text-xs font-semibold text-slate-500 dark:text-neutral-400">
             {selectedHabits.length} selected
           </span>
           <div className="flex gap-2">
