@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   LayoutDashboard,
   CheckSquare,
@@ -124,7 +125,7 @@ export const AppLayout = () => {
       {/* Main App Content Area */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         {/* Mobile Header */}
-        <header className="lg:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3.5 bg-[#0D0D0D] border-b border-neutral-800">
+        <header className="lg:hidden sticky top-0 z-50 flex items-center justify-between px-4 py-3.5 bg-[#0D0D0D] border-b border-neutral-800">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center">
               <Flame className="w-5 h-5 fill-current" />
@@ -142,52 +143,75 @@ export const AppLayout = () => {
           </div>
         </header>
 
-        {/* Mobile Menu Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-white dark:bg-[#0D0D0D] border-b border-slate-200 dark:border-neutral-800 px-4 py-4 space-y-3 z-20 shadow-xl">
-            <Button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setCreateModalOpen(true);
-              }}
-              className="w-full justify-center bg-slate-900 text-white dark:bg-white dark:text-black"
-            >
-              <Plus className="w-4 h-4" />
-              New Habit
-            </Button>
-            <nav className="space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
-                        isActive
-                          ? 'bg-slate-200 dark:bg-neutral-800 text-slate-900 dark:text-white font-bold'
-                          : 'text-slate-600 dark:text-neutral-400'
-                      }`
-                    }
-                  >
-                    <Icon className="w-5 h-5" />
-                    {item.label}
-                  </NavLink>
-                );
-              })}
-            </nav>
-            <div className="pt-3 border-t border-slate-200 dark:border-neutral-800 flex items-center justify-between">
-              <span className="text-xs text-slate-500 dark:text-neutral-400 truncate">{user?.email}</span>
-              <button
-                onClick={handleLogout}
-                className="text-xs font-semibold text-rose-500 flex items-center gap-1"
+        {/* Mobile Menu Drawer — fixed overlay, always on top regardless of scroll */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                key="mobile-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="lg:hidden fixed top-[57px] left-0 right-0 bottom-0 z-40 bg-black/60 backdrop-blur-sm"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+
+              {/* Menu Panel — fixed to top, below the header (top: 57px = header height) */}
+              <motion.div
+                key="mobile-menu"
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="lg:hidden fixed top-[57px] left-0 right-0 z-50 bg-[#0D0D0D] border-b border-neutral-800 px-4 py-4 space-y-3 shadow-2xl"
               >
-                <LogOut className="w-3.5 h-3.5" /> Logout
-              </button>
-            </div>
-          </div>
-        )}
+                <Button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setCreateModalOpen(true);
+                  }}
+                  className="w-full justify-center bg-white text-black hover:bg-neutral-100"
+                >
+                  <Plus className="w-4 h-4" />
+                  New Habit
+                </Button>
+                <nav className="space-y-1">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                            isActive
+                              ? 'bg-neutral-800 text-white font-bold'
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                          }`
+                        }
+                      >
+                        <Icon className="w-5 h-5" />
+                        {item.label}
+                      </NavLink>
+                    );
+                  })}
+                </nav>
+                <div className="pt-3 border-t border-neutral-800 flex items-center justify-between">
+                  <span className="text-xs text-neutral-400 truncate">{user?.email}</span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-xs font-semibold text-rose-500 flex items-center gap-1 hover:text-rose-400 transition-colors"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Logout
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Main Body */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-20 lg:pb-8">
