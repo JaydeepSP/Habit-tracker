@@ -2,17 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService } from '../services/habitService';
 import { useToast } from '../context/ToastContext';
 import { queryKeys } from './queryKeys';
+import { Habit } from '../types';
 
-/**
- * Custom Hook for Habit Queries & Mutations
- * Encapsulates all habit CRUD and toggle logic with optimistic cache invalidation
- */
-export const useHabits = (params = {}) => {
+export const useHabits = (params: Record<string, any> = {}) => {
   const queryClient = useQueryClient();
   const { success, error } = useToast();
 
-  // Query: Get habits list
-  const habitsQuery = useQuery({
+  const habitsQuery = useQuery<Habit[]>({
     queryKey: queryKeys.habits.list(params),
     queryFn: async () => {
       const res = await habitService.getHabits(params);
@@ -20,62 +16,59 @@ export const useHabits = (params = {}) => {
     },
   });
 
-  // Mutation: Create habit
   const createHabitMutation = useMutation({
-    mutationFn: (habitData) => habitService.createHabit(habitData),
+    mutationFn: (habitData: Partial<Habit>) => habitService.createHabit(habitData),
     onSuccess: () => {
       success('Habit created successfully! 🎉');
       queryClient.invalidateQueries({ queryKey: queryKeys.habits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats.all });
     },
-    onError: (err) => {
+    onError: (err: any) => {
       error(err.message || 'Failed to create habit');
     },
   });
 
-  // Mutation: Update habit
   const updateHabitMutation = useMutation({
-    mutationFn: ({ id, data }) => habitService.updateHabit(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<Habit> }) =>
+      habitService.updateHabit(id, data),
     onSuccess: () => {
       success('Habit updated successfully');
       queryClient.invalidateQueries({ queryKey: queryKeys.habits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats.all });
     },
-    onError: (err) => {
+    onError: (err: any) => {
       error(err.message || 'Failed to update habit');
     },
   });
 
-  // Mutation: Delete habit
   const deleteHabitMutation = useMutation({
-    mutationFn: (habitId) => habitService.deleteHabit(habitId),
+    mutationFn: (habitId: string) => habitService.deleteHabit(habitId),
     onSuccess: () => {
       success('Habit and history deleted');
       queryClient.invalidateQueries({ queryKey: queryKeys.habits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats.all });
     },
-    onError: (err) => {
+    onError: (err: any) => {
       error(err.message || 'Failed to delete habit');
     },
   });
 
-  // Mutation: Toggle Active/Paused status
   const toggleActiveMutation = useMutation({
-    mutationFn: (habitId) => habitService.toggleActive(habitId),
+    mutationFn: (habitId: string) => habitService.toggleActive(habitId),
     onSuccess: () => {
       success('Habit status updated');
       queryClient.invalidateQueries({ queryKey: queryKeys.habits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats.all });
     },
-    onError: (err) => {
+    onError: (err: any) => {
       error(err.message || 'Failed to toggle status');
     },
   });
 
-  // Mutation: Toggle Today Completion
   const toggleCompletionMutation = useMutation({
-    mutationFn: ({ habitId, date }) => habitService.toggleCompletion(habitId, date),
-    onSuccess: (res) => {
+    mutationFn: ({ habitId, date }: { habitId: string; date?: string }) =>
+      habitService.toggleCompletion(habitId, date),
+    onSuccess: (res: any) => {
       if (res.data?.completed) {
         success('Habit completed! Keep up the momentum 🔥');
       } else {
@@ -84,20 +77,19 @@ export const useHabits = (params = {}) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.habits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats.all });
     },
-    onError: (err) => {
+    onError: (err: any) => {
       error(err.message || 'Failed to update completion');
     },
   });
 
-  // Mutation: Batch Create Recommended Habits
   const createBatchHabitsMutation = useMutation({
-    mutationFn: (habitsList) => habitService.createBatchHabits(habitsList),
-    onSuccess: (res, habitsList) => {
+    mutationFn: (habitsList: Partial<Habit>[]) => habitService.createBatchHabits(habitsList),
+    onSuccess: (res: any, habitsList: Partial<Habit>[]) => {
       success(`Added ${habitsList.length} recommended habits! 🚀`);
       queryClient.invalidateQueries({ queryKey: queryKeys.habits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats.all });
     },
-    onError: (err) => {
+    onError: (err: any) => {
       error(err.message || 'Failed to add recommended habits');
     },
   });
@@ -108,14 +100,12 @@ export const useHabits = (params = {}) => {
     isError: habitsQuery.isError,
     error: habitsQuery.error,
     refetch: habitsQuery.refetch,
-    // Mutations
-    createHabit: createHabitMutation.mutateAsync,
-    updateHabit: (id, data) => updateHabitMutation.mutateAsync({ id, data }),
-    deleteHabit: deleteHabitMutation.mutateAsync,
-    toggleActive: toggleActiveMutation.mutateAsync,
-    toggleCompletion: (habitId, date) => toggleCompletionMutation.mutateAsync({ habitId, date }),
-    createBatchHabits: createBatchHabitsMutation.mutateAsync,
-    // Status states
+    createHabit: (data: Partial<Habit>) => createHabitMutation.mutateAsync(data),
+    updateHabit: (id: string, data: Partial<Habit>) => updateHabitMutation.mutateAsync({ id, data }),
+    deleteHabit: (habitId: string) => deleteHabitMutation.mutateAsync(habitId),
+    toggleActive: (habitId: string) => toggleActiveMutation.mutateAsync(habitId),
+    toggleCompletion: (habitId: string, date?: string) => toggleCompletionMutation.mutateAsync({ habitId, date }),
+    createBatchHabits: (habitsList: Partial<Habit>[]) => createBatchHabitsMutation.mutateAsync(habitsList),
     isCreating: createHabitMutation.isPending,
     isUpdating: updateHabitMutation.isPending,
     isDeleting: deleteHabitMutation.isPending,

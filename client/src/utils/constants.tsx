@@ -60,8 +60,14 @@ export const AVAILABLE_ICONS = [
   'Briefcase',
 ];
 
-export const DynamicIcon = ({ name, className = 'w-5 h-5', color }) => {
-  const IconComponent = Icons[name] || Icons.Activity;
+export interface DynamicIconProps {
+  name: string;
+  className?: string;
+  color?: string;
+}
+
+export const DynamicIcon: React.FC<DynamicIconProps> = ({ name, className = 'w-5 h-5', color }) => {
+  const IconComponent = (Icons as any)[name] || Icons.Activity;
   return <IconComponent className={className} style={color ? { color } : undefined} />;
 };
 

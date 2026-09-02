@@ -1,11 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const ThemeContext = createContext();
+type Theme = 'light' | 'dark' | 'system';
 
-export const ThemeProvider = ({ children }) => {
-  // Theme options: 'light' | 'dark' | 'system'
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('habit_theme') || 'dark'; // Default sleek dark mode
+interface ThemeContextValue {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue>({
+  theme: 'dark',
+  setTheme: () => {},
+});
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    return (localStorage.getItem('habit_theme') as Theme) || 'dark';
   });
 
   useEffect(() => {
@@ -38,8 +47,8 @@ export const ThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', listener);
   }, [theme]);
 
-  const toggleTheme = (newTheme) => {
-    setTheme(newTheme);
+  const toggleTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
   };
 
   return (
@@ -49,7 +58,7 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-export const useTheme = () => {
+export const useTheme = (): ThemeContextValue => {
   const context = useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');

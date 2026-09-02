@@ -8,10 +8,12 @@ import { HabitCard } from './HabitCard';
 import { HabitModal } from './HabitModal';
 import { Skeleton } from '../ui/Skeleton';
 
-export const HabitsPage = () => {
-  const { openCreateModal } = useOutletContext() || {};
+import { Habit } from '../../types';
 
-  const [editingHabit, setEditingHabit] = useState(null);
+export const HabitsPage = () => {
+  const { openCreateModal } = (useOutletContext<{ openCreateModal?: () => void }>() || {});
+
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // TanStack Query & Mutation Hook
@@ -195,7 +197,6 @@ export const HabitsPage = () => {
         onSaved={() => {
           setIsEditModalOpen(false);
           setEditingHabit(null);
-          fetchHabits();
         }}
       />
     </div>

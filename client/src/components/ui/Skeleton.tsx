@@ -1,13 +1,9 @@
 import React from 'react';
-import { cn } from './index';
 
-export const Skeleton = ({ className, ...props }) => {
+export const Skeleton: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', ...props }) => {
   return (
     <div
-      className={cn(
-        'animate-pulse rounded-xl bg-slate-200 dark:bg-neutral-800',
-        className
-      )}
+      className={`animate-pulse rounded-xl bg-slate-200 dark:bg-neutral-800 ${className}`}
       {...props}
     />
   );

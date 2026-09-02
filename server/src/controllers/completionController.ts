@@ -7,7 +7,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 // @access  Private
 export const getCompletions = asyncHandler(async (req, res, next) => {
   const { startDate, endDate, habitId } = req.query;
-  const query = { user: req.user.id };
+  const query: any = { user: req.user.id };
 
   if (habitId) {
     query.habit = habitId;

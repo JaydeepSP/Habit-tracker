@@ -300,8 +300,8 @@ export const CalendarPage = () => {
           </div>
         ) : (
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-            {selectedDateCompletions.map((comp) => {
-              const habit = comp.habit;
+            {selectedDateCompletions.map((comp: any) => {
+              const habit = comp.habit || comp.habitId;
               if (!habit) return null;
 
               return (
@@ -311,20 +311,20 @@ export const CalendarPage = () => {
                 >
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: `${habit.color}20`, color: habit.color }}
+                    style={{ backgroundColor: `${habit.color || '#3B82F6'}20`, color: habit.color || '#3B82F6' }}
                   >
-                    <DynamicIcon name={habit.icon} className="w-5 h-5" />
+                    <DynamicIcon name={habit.icon || 'Activity'} className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                         {habit.name}
                       </h4>
-                      <Badge color={habit.color}>{habit.category}</Badge>
+                      <Badge variant="primary">{habit.category}</Badge>
                     </div>
-                    {comp.note && (
+                    {(comp.notes || comp.note) && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 italic">
-                        "{comp.note}"
+                        "{comp.notes || comp.note}"
                       </p>
                     )}
                     <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">

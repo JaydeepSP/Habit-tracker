@@ -2,40 +2,42 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { completionService } from '../services/completionService';
 import { useToast } from '../context/ToastContext';
 import { queryKeys } from './queryKeys';
+import { HabitCompletion } from '../types';
 
-/**
- * Custom Hook for Habit Completions
- */
 export const useCompletions = () => {
   const queryClient = useQueryClient();
   const { error } = useToast();
 
   const toggleCompletionDateMutation = useMutation({
-    mutationFn: ({ habitId, date, completed }) =>
-      completionService.createCompletion({ habitId, date, completed }),
+    mutationFn: ({
+      habitId,
+      date,
+      completed,
+    }: {
+      habitId: string;
+      date: string;
+      completed: boolean;
+    }) => completionService.createCompletion({ habitId, date, completed }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.habits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.stats.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.completions.all });
     },
-    onError: (err) => {
+    onError: (err: any) => {
       error(err.message || 'Failed to update completion');
     },
   });
 
   return {
-    toggleDateCompletion: (habitId, date, completed) =>
+    toggleDateCompletion: (habitId: string, date: string, completed: boolean) =>
       toggleCompletionDateMutation.mutateAsync({ habitId, date, completed }),
     isToggling: toggleCompletionDateMutation.isPending,
   };
 };
 
-/**
- * Custom Hook for fetching completions for a specific date modal
- */
-export const useDateCompletions = (date, enabled = true) => {
-  const query = useQuery({
-    queryKey: queryKeys.completions.byDate(date),
+export const useDateCompletions = (date?: string, enabled = true) => {
+  const query = useQuery<HabitCompletion[]>({
+    queryKey: queryKeys.completions.byDate(date || ''),
     queryFn: async () => {
       if (!date) return [];
       const res = await completionService.getCompletionsByDate(date);

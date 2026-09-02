@@ -5,6 +5,17 @@ import { DynamicIcon } from '../../utils/constants';
 import { HabitContributionGraph } from './HabitContributionGraph';
 import { useCompletions } from '../../hooks';
 
+import { Habit } from '../../types';
+
+export interface HabitCardProps {
+  habit: Habit;
+  onToggle: (id: string) => void;
+  onEdit: (habit: Habit) => void;
+  onDelete: (habit: Habit) => void;
+  onToggleActive: (id: string) => void;
+  onRefresh?: () => void;
+}
+
 // Get today's date string formatted as YYYY-MM-DD
 const getTodayStr = () => {
   const d = new Date();
@@ -14,13 +25,13 @@ const getTodayStr = () => {
   return `${year}-${month}-${day}`;
 };
 
-export const HabitCard = React.memo(({
+export const HabitCard: React.FC<HabitCardProps> = React.memo(({
   habit,
   onToggle,
   onEdit,
   onDelete,
   onToggleActive,
-  onRefresh, // optional callback to refresh habits after date-toggle
+  onRefresh,
 }) => {
   const { toggleDateCompletion } = useCompletions();
   const [isToggling, setIsToggling] = useState(false);

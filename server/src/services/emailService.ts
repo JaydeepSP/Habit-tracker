@@ -1,6 +1,14 @@
 import nodemailer from 'nodemailer';
 
-const sendEmail = async (options) => {
+export interface EmailOptions {
+  email: string;
+  subject: string;
+  message: string;
+  resetUrl?: string;
+  html?: string;
+}
+
+const sendEmail = async (options: EmailOptions): Promise<boolean> => {
   // If SMTP isn't configured in development, log the URL to console
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
     console.log('================ EMAIL SERVICE (DEV FALLBACK) ================');
@@ -16,12 +24,12 @@ const sendEmail = async (options) => {
 
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASSWORD,
     },
-  });
+  } as any);
 
   const message = {
     from: `${process.env.FROM_NAME || 'HabitTracker'} <${process.env.FROM_EMAIL || 'noreply@habittracker.com'}>`,

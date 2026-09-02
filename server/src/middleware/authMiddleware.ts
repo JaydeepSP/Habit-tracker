@@ -1,9 +1,11 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import User from '../models/User.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import type { AuthRequest } from '../types/index.js';
+import type { Response, NextFunction } from 'express';
 
-export const protect = asyncHandler(async (req, res, next) => {
-  let token;
+export const protect = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  let token: string | undefined;
 
   // 1. Read token from HTTP-only cookie first (preferred)
   if (req.cookies && req.cookies.token) {
@@ -25,8 +27,8 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretkey12345');
-    const user = await User.findById(decoded.id).select('-password');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretkey12345') as JwtPayload;
+    const user = await User.findById(decoded.id).select('+password');
 
     if (!user) {
       return res.status(401).json({

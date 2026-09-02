@@ -35,7 +35,7 @@ const getBarColor = (rate) => {
 };
 
 // Theme-adaptive custom tooltip for BarChart
-const CustomBarTooltip = ({ active, payload, label }) => {
+const CustomBarTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     const rate = payload[0].value;
     const color = getBarColor(rate);
@@ -58,10 +58,10 @@ const CustomBarTooltip = ({ active, payload, label }) => {
 };
 
 // Theme-adaptive custom tooltip for PieChart
-const CustomPieTooltip = ({ active, payload }) => {
+const CustomPieTooltip: React.FC<any> = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0];
-    const categoryColor = CATEGORY_COLORS[data.name] || "#64748B";
+    const categoryColor = (CATEGORY_COLORS as any)[data.name] || "#64748B";
     return (
       <div className="p-2.5 rounded-xl shadow-xl border bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-xs space-y-1">
         <div className="flex items-center gap-2">

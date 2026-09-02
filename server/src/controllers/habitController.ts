@@ -9,7 +9,7 @@ import { calculateHabitStreak } from '../services/streakService.js';
 // @access  Private
 export const getHabits = asyncHandler(async (req, res, next) => {
   const { category, isActive, search } = req.query;
-  const query = { user: req.user.id };
+  const query: any = { user: req.user.id };
 
   if (category && category !== 'All') {
     query.category = category;

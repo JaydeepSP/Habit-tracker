@@ -1,12 +1,20 @@
-export const notFound = (req, res, next) => {
+import type { Request, Response, NextFunction } from 'express';
+
+export const notFound = (req: Request, res: Response, next: NextFunction) => {
   const error = new Error(`Not Found - ${req.originalUrl}`);
   res.status(404);
   next(error);
 };
 
-export const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  let message = err.message || 'Internal Server Error';
+export const errorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  next: NextFunction
+) => {
+  let statusCode: number = res.statusCode === 200 ? 500 : res.statusCode;
+  let message: string = err?.message || 'Internal Server Error';
 
   // Mongoose Bad ObjectId CastError
   if (err.name === 'CastError') {
@@ -16,14 +24,14 @@ export const errorHandler = (err, req, res, next) => {
 
   // Mongoose Duplicate Key Error
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
+    const field = Object.keys(err.keyValue ?? {})[0];
     message = `Duplicate field value entered: ${field}. Please use another value!`;
     statusCode = 409;
   }
 
   // Mongoose Validation Error
   if (err.name === 'ValidationError') {
-    message = Object.values(err.errors)
+    message = Object.values(err.errors as Record<string, { message: string }>)
       .map((val) => val.message)
       .join(', ');
     statusCode = 400;

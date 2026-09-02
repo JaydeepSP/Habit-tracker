@@ -10,7 +10,12 @@ import { getDateOffset, getTodayString } from '../utils/dateHelpers.js';
 
 const seedDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/habit-tracker';
+    // Append DB name so Atlas doesn't fall back to 'test'
+    let mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/habit-tracker';
+    if (!mongoUri.includes('/habit-tracker')) {
+      mongoUri = mongoUri.replace('/?', '/habit-tracker?').replace(/\/$/, '/habit-tracker');
+      if (!mongoUri.includes('/habit-tracker')) mongoUri += '/habit-tracker';
+    }
     await mongoose.connect(mongoUri);
     console.log(`Connected to MongoDB for seeding: ${mongoUri}`);
 
@@ -25,6 +30,7 @@ const seedDatabase = async () => {
       await HabitCompletion.deleteMany({ habit: { $in: habitIds } });
       await Habit.deleteMany({ user: demoUser._id });
       await User.deleteOne({ _id: demoUser._id });
+      demoUser = null;
     }
 
     // Create demo user

@@ -4,8 +4,19 @@ import { Button } from '../ui';
 import { DynamicIcon } from '../../utils/constants';
 import { useHabits } from '../../hooks';
 import { Check } from 'lucide-react';
+import type { HabitCategory, HabitFrequency, Habit } from '../../types';
 
-const RECOMMENDED_LIST = [
+interface RecommendedHabit {
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  category: HabitCategory;
+  frequency: HabitFrequency;
+  customDays?: number[];
+}
+
+const RECOMMENDED_LIST: RecommendedHabit[] = [
   {
     name: 'Wake up early (6:00 AM)',
     description: 'Start your day ahead of schedule with calm clarity',
@@ -73,12 +84,22 @@ const RECOMMENDED_LIST = [
   },
 ];
 
-export const RecommendedHabitsModal = ({ isOpen, onClose, onAdded }) => {
-  const [selectedHabits, setSelectedHabits] = useState([]);
+interface RecommendedHabitsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdded: () => void;
+}
+
+export const RecommendedHabitsModal: React.FC<RecommendedHabitsModalProps> = ({
+  isOpen,
+  onClose,
+  onAdded,
+}) => {
+  const [selectedHabits, setSelectedHabits] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createBatchHabits } = useHabits();
 
-  const toggleSelect = (index) => {
+  const toggleSelect = (index: number) => {
     if (selectedHabits.includes(index)) {
       setSelectedHabits(selectedHabits.filter((i) => i !== index));
     } else {
@@ -90,7 +111,7 @@ export const RecommendedHabitsModal = ({ isOpen, onClose, onAdded }) => {
     if (selectedHabits.length === 0) return;
     setIsSubmitting(true);
     try {
-      const habitsToCreate = selectedHabits.map((idx) => RECOMMENDED_LIST[idx]);
+      const habitsToCreate: Partial<Habit>[] = selectedHabits.map((idx) => RECOMMENDED_LIST[idx]);
       await createBatchHabits(habitsToCreate);
       onAdded();
       onClose();

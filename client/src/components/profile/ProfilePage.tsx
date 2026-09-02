@@ -130,14 +130,14 @@ export const ProfilePage = () => {
             <Input
               label="Full Name"
               placeholder="Your Name"
-              error={profileErrors.name?.message}
+              error={profileErrors.name?.message as string | undefined}
               {...registerProfile('name', { required: 'Name is required' })}
             />
             <Input
               label="Email Address"
               type="email"
               placeholder="you@example.com"
-              error={profileErrors.email?.message}
+              error={profileErrors.email?.message as string | undefined}
               {...registerProfile('email', { required: 'Email is required' })}
             />
           </div>

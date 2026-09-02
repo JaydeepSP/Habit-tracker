@@ -19,25 +19,25 @@ import { DashboardSkeleton } from '../ui/Skeleton';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
-  const { openCreateModal } = useOutletContext() || {};
+  const { openCreateModal } = (useOutletContext<{ openCreateModal?: () => void }>() || {});
 
-  const [editingHabit, setEditingHabit] = useState(null);
+  const [editingHabit, setEditingHabit] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isRecommendedModalOpen, setIsRecommendedModalOpen] = useState(false);
 
   // Custom API hooks
-  const { today, streaks, habits, last7Days, isLoading } = useDashboardStats();
+  const { today, habits, last7Days, streaks, isLoading } = useDashboardStats();
   const { toggleCompletion, toggleActive, deleteHabit } = useHabits();
 
-  const handleToggleCompletion = (habitId) => {
+  const handleToggleCompletion = (habitId: string) => {
     toggleCompletion(habitId);
   };
 
-  const handleToggleActive = (habitId) => {
+  const handleToggleActive = (habitId: string) => {
     toggleActive(habitId);
   };
 
-  const handleDelete = (habit) => {
+  const handleDelete = (habit: any) => {
     if (window.confirm(`Are you sure you want to delete "${habit.name}"?`)) {
       deleteHabit(habit._id);
     }
@@ -47,10 +47,10 @@ export const DashboardPage = () => {
     return <DashboardSkeleton />;
   }
 
-  const scheduledTodayHabits = habits.filter((h) => h.isScheduledToday);
+  const scheduledTodayHabits = habits.filter((h: any) => h.isScheduledToday);
 
   // Formatted date string for greeting
-  const dateOptions = { weekday: 'long', month: 'long', day: 'numeric' };
+  const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' };
   const formattedToday = new Date().toLocaleDateString('en-US', dateOptions);
 
   return (
@@ -275,7 +275,6 @@ export const DashboardPage = () => {
         onSaved={() => {
           setIsEditModalOpen(false);
           setEditingHabit(null);
-          fetchDashboardData();
         }}
       />
 
@@ -283,7 +282,7 @@ export const DashboardPage = () => {
       <RecommendedHabitsModal
         isOpen={isRecommendedModalOpen}
         onClose={() => setIsRecommendedModalOpen(false)}
-        onAdded={() => fetchDashboardData()}
+        onAdded={() => setIsRecommendedModalOpen(false)}
       />
     </div>
   );
