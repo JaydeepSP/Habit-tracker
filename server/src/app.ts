@@ -2,6 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pinoHttp = require('pino-http') as typeof import('pino-http');
+import swaggerUi from 'swagger-ui-express';
+import { logger } from './utils/logger.js';
+import { swaggerDocument } from './config/swagger.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 
@@ -13,6 +20,17 @@ import statsRoutes from './routes/statsRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
 const app = express();
+
+// Structured HTTP Request Logging — pino-http loaded via CJS interop
+const httpLoggerMw = (pinoHttp as any).default ?? pinoHttp;
+app.use(
+  httpLoggerMw({
+    logger,
+    autoLogging: {
+      ignore: (req: any) => req.url === '/api/health',
+    },
+  })
+);
 
 // Security HTTP headers
 app.use(
@@ -48,6 +66,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET || 'cookie_secret_fallback'));
 
+// Interactive API Documentation (Swagger / OpenAPI)
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Apply rate limiting to all standard API routes
 app.use('/api', apiLimiter);
 
@@ -72,3 +93,4 @@ app.use(notFound);
 app.use(errorHandler);
 
 export default app;
+

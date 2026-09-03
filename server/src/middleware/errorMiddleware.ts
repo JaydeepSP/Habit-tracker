@@ -1,9 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
+import createHttpError from 'http-errors';
+import logger from '../utils/logger.js';
 
 export const notFound = (req: Request, res: Response, next: NextFunction) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
-  res.status(404);
-  next(error);
+  next(createHttpError(404, `Not Found - ${req.originalUrl}`));
 };
 
 export const errorHandler = (
@@ -13,7 +13,7 @@ export const errorHandler = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
-  let statusCode: number = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode: number = err?.status || err?.statusCode || (res.statusCode === 200 ? 500 : res.statusCode);
   let message: string = err?.message || 'Internal Server Error';
 
   // Mongoose Bad ObjectId CastError
@@ -48,9 +48,17 @@ export const errorHandler = (
     statusCode = 401;
   }
 
+  if (statusCode >= 500) {
+    logger.error({ err, path: req.originalUrl, method: req.method }, message);
+  } else {
+    logger.warn({ status: statusCode, path: req.originalUrl, method: req.method }, message);
+  }
+
   res.status(statusCode).json({
     success: false,
     message,
+    errors: err.errors || undefined,
     stack: process.env.NODE_ENV === 'production' ? null : err.stack,
   });
 };
+
