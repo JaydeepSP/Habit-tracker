@@ -12,6 +12,7 @@ import { HabitsPage } from '@/components/habits/HabitsPage';
 import { CalendarPage } from '@/components/calendar/CalendarPage';
 import { AnalyticsPage } from '@/components/analytics/AnalyticsPage';
 import { ProfilePage } from '@/components/profile/ProfilePage';
+import { NotesPage } from '@/components/notes/NotesPage';
 
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="/habits" element={<HabitsPage />} />
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/notes" element={<NotesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 

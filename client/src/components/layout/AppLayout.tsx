@@ -12,6 +12,7 @@ import {
   X,
   Flame,
   Plus,
+  StickyNote,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -38,6 +39,7 @@ export const AppLayout = () => {
     { to: '/habits', label: 'Habits', icon: CheckSquare },
     { to: '/calendar', label: 'Calendar', icon: Calendar },
     { to: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { to: '/notes', label: 'Notes', icon: StickyNote },
     { to: '/profile', label: 'Profile', icon: User },
   ];
 
