@@ -155,7 +155,7 @@ export const DashboardPage = () => {
                         {d.day}
                       </span>
                       <div
-                        className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold ${
+                        className={`size-10 rounded-md flex items-center justify-center text-[10px] font-bold ${
                           d.rate === 100
                             ? 'bg-slate-900 text-white dark:bg-white dark:text-black shadow-sm'
                             : d.rate > 0
