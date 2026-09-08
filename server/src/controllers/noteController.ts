@@ -101,3 +101,50 @@ export const toggleArchive = asyncHandler(
   },
 );
 
+// @desc  Bulk delete notes
+// @route POST /api/notes/bulk/delete
+export const bulkDeleteNotes = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { noteIds } = req.body;
+    if (!Array.isArray(noteIds) || noteIds.length === 0) {
+      throw createHttpError(400, "Please provide noteIds array");
+    }
+    await Note.deleteMany({ _id: { $in: noteIds }, user: req.user._id });
+    res.json({ success: true, message: `${noteIds.length} notes deleted` });
+  },
+);
+
+// @desc  Bulk archive/unarchive notes
+// @route POST /api/notes/bulk/archive
+export const bulkArchiveNotes = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { noteIds, archive } = req.body;
+    if (!Array.isArray(noteIds) || noteIds.length === 0) {
+      throw createHttpError(400, "Please provide noteIds array");
+    }
+    const update: any = { isArchived: archive !== false };
+    if (update.isArchived) update.isPinned = false;
+    await Note.updateMany(
+      { _id: { $in: noteIds }, user: req.user._id },
+      { $set: update },
+    );
+    res.json({ success: true, message: "Notes updated" });
+  },
+);
+
+// @desc  Bulk color update notes
+// @route POST /api/notes/bulk/color
+export const bulkColorNotes = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { noteIds, color } = req.body;
+    if (!Array.isArray(noteIds) || noteIds.length === 0 || !color) {
+      throw createHttpError(400, "Please provide noteIds and color");
+    }
+    await Note.updateMany(
+      { _id: { $in: noteIds }, user: req.user._id },
+      { $set: { color } },
+    );
+    res.json({ success: true, message: "Note colors updated" });
+  },
+);
+

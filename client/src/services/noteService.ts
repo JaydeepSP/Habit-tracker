@@ -35,4 +35,19 @@ export const noteService = {
     const res = await api.patch(`/notes/${id}/archive`);
     return res.data;
   },
+
+  bulkDelete: async (noteIds: string[]) => {
+    const res = await api.post("/notes/bulk/delete", { noteIds });
+    return res.data;
+  },
+
+  bulkArchive: async (noteIds: string[], archive = true) => {
+    const res = await api.post("/notes/bulk/archive", { noteIds, archive });
+    return res.data;
+  },
+
+  bulkColor: async (noteIds: string[], color: string) => {
+    const res = await api.post("/notes/bulk/color", { noteIds, color });
+    return res.data;
+  },
 };

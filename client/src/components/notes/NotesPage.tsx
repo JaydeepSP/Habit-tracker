@@ -237,13 +237,27 @@ const ChecklistEditor: React.FC<{
   );
 };
 
-const NoteCard: React.FC<{
+interface NoteCardProps {
   note: Note;
   onClick: () => void;
   onPin: () => void;
   onArchive: () => void;
   onDelete: () => void;
-}> = ({ note, onClick, onPin, onArchive, onDelete }) => {
+  isSelected?: boolean;
+  onToggleSelect?: (e: React.MouseEvent) => void;
+  selectionMode?: boolean;
+}
+
+const NoteCard: React.FC<NoteCardProps> = ({
+  note,
+  onClick,
+  onPin,
+  onArchive,
+  onDelete,
+  isSelected,
+  onToggleSelect,
+  selectionMode,
+}) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const cc = getCC(note.color);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -272,10 +286,13 @@ const NoteCard: React.FC<{
       ? (note.habit as Habit)
       : null;
 
-  const isMissedHabit = note.tags?.includes("missed-habit") || (linkedHabit && note.color === "red");
+  const isMissedHabit =
+    note.tags?.includes("missed-habit") ||
+    (linkedHabit && note.color === "red");
   const isHabitNote = !!linkedHabit;
   const isReminderNote = !linkedHabit && !!note.targetDate;
-  const isTodoNote = note.type === "checklist" && !linkedHabit && !note.targetDate;
+  const isTodoNote =
+    note.type === "checklist" && !linkedHabit && !note.targetDate;
 
   return (
     <motion.div
@@ -285,8 +302,34 @@ const NoteCard: React.FC<{
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.18 }}
       onClick={onClick}
-      className={`relative group rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${cc.bg} ${cc.border}`}
+      className={`relative group rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${cc.bg} ${
+        isSelected
+          ? "ring-2 ring-blue-500 dark:ring-blue-400 border-blue-400 shadow-md"
+          : cc.border
+      }`}
     >
+      {/* Top Left Selection Checkbox */}
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleSelect?.(e);
+        }}
+        className={`absolute top-3 left-3 z-10 w-5 h-5 rounded-md flex items-center justify-center transition-all ${
+          isSelected
+            ? "bg-blue-600 text-white shadow-sm scale-100 opacity-100"
+            : selectionMode
+              ? "bg-white/80 dark:bg-neutral-800/80 border border-slate-300 dark:border-neutral-600 opacity-100 hover:border-blue-500"
+              : "bg-white/80 dark:bg-neutral-800/80 border border-slate-300 dark:border-neutral-600 opacity-0 group-hover:opacity-100 hover:border-blue-500 hover:scale-105"
+        }`}
+        title={isSelected ? "Deselect note" : "Select note"}
+      >
+        {isSelected ? (
+          <Check className="w-3.5 h-3.5 stroke-[3]" />
+        ) : (
+          <div className="w-2 h-2 rounded-sm bg-transparent group-hover:bg-slate-300 dark:group-hover:bg-neutral-600" />
+        )}
+      </div>
+
       {note.isPinned && (
         <div className="absolute top-3 right-3">
           <Pin className="w-3.5 h-3.5 text-slate-400 dark:text-neutral-500 fill-current" />
@@ -294,7 +337,7 @@ const NoteCard: React.FC<{
       )}
 
       {/* Note Type & Linked Badges */}
-      <div className="flex flex-wrap items-center gap-1.5 mb-2.5 pr-6">
+      <div className="flex flex-wrap items-center gap-1.5 mb-2.5 pl-6 pr-6">
         {isHabitNote ? (
           <span
             className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border ${
@@ -600,104 +643,118 @@ const NoteEditor: React.FC<{
             </label>
             <input
               type="date"
-              value={targetDate}
+              value={targetDate ? targetDate.substring(0, 10) : ""}
               onChange={(e) => setTargetDate(e.target.value)}
               className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-neutral-600"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-1 px-4 pb-3">
-          {(
-            [
-              ["text", "Text", FileText],
-              ["checklist", "Checklist", CheckSquare],
-            ] as const
-          ).map(([t, label, Icon]) => (
-            <button
-              type="button"
-              key={t}
-              onClick={() => {
-                setType(t as NoteType);
-                if (t === "checklist" && checklist.length === 0)
-                  setChecklist([
-                    { id: generateSafeId(), text: "", checked: false },
-                  ]);
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                type === t
-                  ? "bg-slate-900 dark:bg-white text-white dark:text-black"
-                  : "text-slate-500 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800"
-              }`}
-            >
-              <Icon className="w-3 h-3" />
-              {label}
-            </button>
-          ))}
+        {/* Note Type switcher tabs */}
+        <div className="flex items-center gap-1 px-4 pb-2 border-b border-slate-100 dark:border-neutral-800">
+          <button
+            type="button"
+            onClick={() => setType("text")}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+              type === "text"
+                ? "bg-slate-900 dark:bg-white text-white dark:text-black"
+                : "text-slate-500 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-neutral-200"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Note
+          </button>
+          <button
+            type="button"
+            onClick={() => setType("checklist")}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+              type === "checklist"
+                ? "bg-slate-900 dark:bg-white text-white dark:text-black"
+                : "text-slate-500 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-neutral-200"
+            }`}
+          >
+            <CheckSquare className="w-3.5 h-3.5" />
+            Checklist
+          </button>
         </div>
-        <div className="h-px bg-slate-100 dark:bg-neutral-800 mx-4" />
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+
+        <div className="flex-1 overflow-y-auto px-4 py-3 min-h-[160px]">
           {type === "text" ? (
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Start writing your note or reason for missing habit..."
-              className="w-full min-h-[160px] text-sm text-slate-800 dark:text-neutral-200 placeholder:text-slate-400 dark:placeholder:text-neutral-600 bg-transparent outline-none resize-none leading-relaxed"
+              placeholder="Take a note..."
+              rows={6}
+              className="w-full bg-transparent text-sm text-slate-800 dark:text-neutral-200 placeholder:text-slate-400 dark:placeholder:text-neutral-600 outline-none resize-none leading-relaxed"
             />
           ) : (
             <ChecklistEditor items={checklist} onChange={setChecklist} />
           )}
-          <div className="pt-2 border-t border-slate-100 dark:border-neutral-800">
-            <div className="flex flex-wrap gap-1.5 items-center">
-              <Tag className="w-3.5 h-3.5 text-slate-400 dark:text-neutral-600 shrink-0" />
+
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100 dark:border-neutral-800">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700"
+                  className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700"
                 >
                   #{tag}
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
-                    className="hover:text-red-500 transition-colors"
+                    className="hover:text-red-500"
                   >
-                    <X className="w-2.5 h-2.5" />
+                    <X className="w-3 h-3" />
                   </button>
                 </span>
               ))}
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === ",") {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-                placeholder="Add tag..."
-                className="text-xs bg-transparent text-slate-700 dark:text-neutral-300 placeholder:text-slate-400 dark:placeholder:text-neutral-600 outline-none w-20"
-              />
             </div>
-          </div>
+          )}
         </div>
-        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-neutral-800">
+
+        <div className="px-4 py-2 border-t border-slate-100 dark:border-neutral-800 flex items-center gap-2">
+          <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <input
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                addTag();
+              }
+            }}
+            placeholder="Add tag and press Enter..."
+            className="flex-1 text-xs bg-transparent text-slate-700 dark:text-neutral-300 placeholder:text-slate-400 dark:placeholder:text-neutral-600 outline-none"
+          />
+          {tagInput && (
+            <button
+              type="button"
+              onClick={addTag}
+              className="text-xs font-semibold text-blue-500 hover:text-blue-600"
+            >
+              Add
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-900/30">
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowColorPicker(!showColorPicker)}
-              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
               title="Change color"
             >
-              <Palette className="w-4 h-4 text-slate-500 dark:text-neutral-400" />
+              <Palette className="w-4 h-4" />
             </button>
             <AnimatePresence>
               {showColorPicker && (
                 <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  className="absolute bottom-full left-0 mb-2 flex gap-1.5 p-2.5 bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-neutral-700 rounded-xl shadow-xl z-10"
+                  initial={{ opacity: 0, scale: 0.9, y: 4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 4 }}
+                  className="absolute left-0 sm:left-1/2 sm:-translate-x-1/2 bottom-full mb-2 p-2 bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-neutral-700 rounded-2xl shadow-xl flex gap-1.5 z-50"
                 >
                   {NOTE_COLORS.map((c) => (
                     <button
@@ -707,33 +764,33 @@ const NoteEditor: React.FC<{
                         setColor(c.key);
                         setShowColorPicker(false);
                       }}
-                      className={`w-5 h-5 rounded-full ${c.dot} ring-offset-1 transition-transform hover:scale-125 ${
+                      className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${c.dot} ${
                         color === c.key
-                          ? "ring-2 ring-slate-900 dark:ring-white scale-125"
-                          : ""
+                          ? "border-slate-900 dark:border-white scale-110"
+                          : "border-transparent"
                       }`}
-                      title={c.key}
                     />
                   ))}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
+
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              disabled={saving || isEmpty}
-              className="px-4 py-1.5 text-xs font-bold rounded-lg bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-neutral-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              disabled={isEmpty || saving}
+              className="px-4 py-1.5 rounded-xl text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-neutral-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              {saving ? "Saving..." : "Save Note"}
+              {saving ? "Saving..." : note?._id ? "Update" : "Save"}
             </button>
           </div>
         </div>
@@ -743,50 +800,66 @@ const NoteEditor: React.FC<{
 };
 
 export const NotesPage: React.FC = () => {
-  const { success, error } = useToast();
+  const { habits } = useHabits();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedHabitFilter, setSelectedHabitFilter] = useState<string>("");
+  const [categoryTab, setCategoryTab] = useState<
+    "all" | "habits" | "reminders" | "todos"
+  >("all");
   const [activeTag, setActiveTag] = useState("");
   const [showArchived, setShowArchived] = useState(false);
-  const [editorNote, setEditorNote] = useState<Partial<Note> | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [editorNote, setEditorNote] = useState<Partial<Note> | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
-  const searchTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
-  const { habits } = useHabits();
-  const [selectedHabitFilter, setSelectedHabitFilter] = useState("");
-  const [categoryTab, setCategoryTab] = useState<"all" | "habits" | "reminders" | "todos">("all");
+
+  // Multi-selection state
+  const [selectedNoteIds, setSelectedNoteIds] = useState<string[]>([]);
+  const [bulkColorPickerOpen, setBulkColorPickerOpen] = useState(false);
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  const { success, error: toastError } = useToast();
 
   const fetchNotes = useCallback(async () => {
     try {
-      const params: any = { archived: showArchived };
-      if (search) params.search = search;
-      if (activeTag) params.tag = activeTag;
-      if (selectedHabitFilter) params.habit = selectedHabitFilter;
-      const res = await noteService.getNotes(params);
-      setNotes(res.data || []);
-    } catch (err) {
-      error("Failed to load notes");
+      setLoading(true);
+      const res = await noteService.getNotes({
+        archived: showArchived,
+        tag: activeTag || undefined,
+        habit: selectedHabitFilter || undefined,
+        search: search || undefined,
+      });
+      setNotes(res.data);
+    } catch {
+      toastError("Failed to fetch notes");
     } finally {
       setLoading(false);
     }
-  }, [showArchived, search, activeTag, selectedHabitFilter]);
+  }, [showArchived, activeTag, selectedHabitFilter, search, toastError]);
 
   useEffect(() => {
-    clearTimeout(searchTimeout.current);
-    searchTimeout.current = setTimeout(fetchNotes, search ? 350 : 0);
-  }, [fetchNotes, search]);
+    fetchNotes();
+  }, [fetchNotes]);
+
+  // Clear selections when changing tabs or archived view
+  useEffect(() => {
+    setSelectedNoteIds([]);
+    setBulkColorPickerOpen(false);
+    setBulkDeleteConfirmOpen(false);
+  }, [showArchived, categoryTab, activeTag, selectedHabitFilter]);
 
   const openCreate = () => {
-    setEditorNote({});
+    setEditorNote(null);
     setEditorOpen(true);
   };
+
   const openEdit = (note: Note) => {
     setEditorNote(note);
     setEditorOpen(true);
   };
+
   const closeEditor = () => {
     setEditorOpen(false);
     setEditorNote(null);
@@ -814,6 +887,7 @@ export const NotesPage: React.FC = () => {
   const handleArchive = async (note: Note) => {
     await noteService.toggleArchive(note._id);
     setNotes((prev) => prev.filter((n) => n._id !== note._id));
+    setSelectedNoteIds((prev) => prev.filter((id) => id !== note._id));
     success(note.isArchived ? "Note restored" : "Note archived");
   };
 
@@ -821,6 +895,7 @@ export const NotesPage: React.FC = () => {
     if (!deleteTarget) return;
     await noteService.deleteNote(deleteTarget._id);
     setNotes((prev) => prev.filter((n) => n._id !== deleteTarget._id));
+    setSelectedNoteIds((prev) => prev.filter((id) => id !== deleteTarget._id));
     setDeleteTarget(null);
     success("Note deleted");
   };
@@ -837,22 +912,93 @@ export const NotesPage: React.FC = () => {
     return true;
   });
 
-  const allTags = Array.from(new Set(displayedNotes.flatMap((n) => n.tags || []))).slice(
-    0,
-    20,
-  );
+  // Multi-selection handlers
+  const toggleSelectNote = (id: string) => {
+    setSelectedNoteIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedNoteIds.length === displayedNotes.length) {
+      setSelectedNoteIds([]);
+    } else {
+      setSelectedNoteIds(displayedNotes.map((n) => n._id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedNoteIds.length === 0) return;
+    setBulkActionLoading(true);
+    try {
+      await noteService.bulkDelete(selectedNoteIds);
+      setNotes((prev) => prev.filter((n) => !selectedNoteIds.includes(n._id)));
+      success(`Deleted ${selectedNoteIds.length} notes`);
+      setSelectedNoteIds([]);
+      setBulkDeleteConfirmOpen(false);
+    } catch {
+      toastError("Failed to delete selected notes");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const handleBulkArchive = async (archiveState: boolean) => {
+    if (selectedNoteIds.length === 0) return;
+    setBulkActionLoading(true);
+    try {
+      await noteService.bulkArchive(selectedNoteIds, archiveState);
+      setNotes((prev) => prev.filter((n) => !selectedNoteIds.includes(n._id)));
+      success(
+        `${archiveState ? "Archived" : "Restored"} ${selectedNoteIds.length} notes`,
+      );
+      setSelectedNoteIds([]);
+    } catch {
+      toastError("Failed to update archive status");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const handleBulkColor = async (color: NoteColor) => {
+    if (selectedNoteIds.length === 0) return;
+    setBulkActionLoading(true);
+    try {
+      await noteService.bulkColor(selectedNoteIds, color);
+      setNotes((prev) =>
+        prev.map((n) =>
+          selectedNoteIds.includes(n._id) ? { ...n, color } : n,
+        ),
+      );
+      success(`Updated color for ${selectedNoteIds.length} notes`);
+      setBulkColorPickerOpen(false);
+    } catch {
+      toastError("Failed to update notes color");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const allTags = Array.from(
+    new Set(displayedNotes.flatMap((n) => n.tags || [])),
+  ).slice(0, 20);
   const pinned = displayedNotes.filter((n) => n.isPinned);
   const unpinned = displayedNotes.filter((n) => !n.isPinned);
 
+  const isAllSelected =
+    displayedNotes.length > 0 &&
+    selectedNoteIds.length === displayedNotes.length;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Notes & Habit Logs
           </h2>
           <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
-            {displayedNotes.length} {displayedNotes.length === 1 ? "note" : "notes"}
+            {displayedNotes.length}{" "}
+            {displayedNotes.length === 1 ? "note" : "notes"}
             {showArchived ? " archived" : ""} • Keep track of habit reasons, daily logs, and date reminders
           </p>
         </div>
@@ -887,26 +1033,39 @@ export const NotesPage: React.FC = () => {
       </div>
 
       {/* Category Tabs & Filter Bar */}
-      <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-neutral-900/80 border border-slate-200 dark:border-neutral-800">
-        {[
-          { id: "all", label: "All Notes" },
-          { id: "habits", label: "🎯 Habit Logs & Reasons" },
-          { id: "reminders", label: "🔔 Calendar Reminders" },
-          { id: "todos", label: "☑ To-Do Checklists" },
-        ].map((tab) => (
+      <div className="flex flex-wrap items-center justify-between gap-3 p-1.5 rounded-2xl bg-slate-100 dark:bg-neutral-900/80 border border-slate-200 dark:border-neutral-800">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { id: "all", label: "All Notes" },
+            { id: "habits", label: "🎯 Habit Logs & Reasons" },
+            { id: "reminders", label: "🔔 Calendar Reminders" },
+            { id: "todos", label: "☑ To-Do Checklists" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setCategoryTab(tab.id as any)}
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                categoryTab === tab.id
+                  ? "bg-white dark:bg-neutral-800 text-slate-900 dark:text-white shadow-sm"
+                  : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {displayedNotes.length > 0 && (
           <button
-            key={tab.id}
             type="button"
-            onClick={() => setCategoryTab(tab.id as any)}
-            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
-              categoryTab === tab.id
-                ? "bg-white dark:bg-neutral-800 text-slate-900 dark:text-white shadow-sm"
-                : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
+            onClick={handleSelectAll}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-800 transition-colors"
           >
-            {tab.label}
+            <CheckSquare className="w-3.5 h-3.5" />
+            {isAllSelected ? "Deselect All" : "Select All"}
           </button>
-        ))}
+        )}
       </div>
 
       {/* Search & Habit Filter Row */}
@@ -1026,6 +1185,9 @@ export const NotesPage: React.FC = () => {
                     <div key={note._id} className="break-inside-avoid mb-4">
                       <NoteCard
                         note={note}
+                        isSelected={selectedNoteIds.includes(note._id)}
+                        selectionMode={selectedNoteIds.length > 0}
+                        onToggleSelect={() => toggleSelectNote(note._id)}
                         onClick={() => openEdit(note)}
                         onPin={() => handlePin(note)}
                         onArchive={() => handleArchive(note)}
@@ -1051,6 +1213,9 @@ export const NotesPage: React.FC = () => {
                     <div key={note._id} className="break-inside-avoid mb-4">
                       <NoteCard
                         note={note}
+                        isSelected={selectedNoteIds.includes(note._id)}
+                        selectionMode={selectedNoteIds.length > 0}
+                        onToggleSelect={() => toggleSelectNote(note._id)}
                         onClick={() => openEdit(note)}
                         onPin={() => handlePin(note)}
                         onArchive={() => handleArchive(note)}
@@ -1064,6 +1229,171 @@ export const NotesPage: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Floating Bulk Actions Toolbar */}
+      <AnimatePresence>
+        {selectedNoteIds.length > 0 && (
+          <div className="fixed bottom-6 inset-x-0 lg:left-64 flex justify-center items-center pointer-events-none z-50 px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 28, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 28, scale: 0.94 }}
+              transition={{ type: "spring", stiffness: 450, damping: 32 }}
+              className="relative pointer-events-auto flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-white/95 dark:bg-[#151517]/95 backdrop-blur-2xl text-slate-800 dark:text-neutral-100 rounded-full shadow-[0_16px_36px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.06)] dark:shadow-[0_16px_36px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.08)] border border-slate-200/90 dark:border-neutral-800/90"
+            >
+              {/* Centered Color Palette Popover above toolbar */}
+              <AnimatePresence>
+                {bulkColorPickerOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 6 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-2 bg-white dark:bg-[#1a1a1d] border border-slate-200 dark:border-neutral-750 rounded-2xl shadow-2xl flex items-center justify-center gap-1.5 z-50 backdrop-blur-xl"
+                  >
+                    {NOTE_COLORS.map((c) => (
+                      <button
+                        key={c.key}
+                        type="button"
+                        onClick={() => handleBulkColor(c.key)}
+                        className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-125 ${c.dot} border-transparent hover:border-slate-400 dark:hover:border-neutral-300 shadow-sm`}
+                        title={c.key}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Selected Count & Clear */}
+              <div className="flex items-center gap-2 pl-1 pr-2.5">
+                <span className="flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-blue-600 text-white text-xs font-bold shadow-sm">
+                  {selectedNoteIds.length}
+                </span>
+                <span className="text-xs font-medium text-slate-600 dark:text-neutral-300 hidden sm:inline">
+                  selected
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedNoteIds([]);
+                    setBulkColorPickerOpen(false);
+                  }}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
+                  title="Clear selection"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="h-4 w-px bg-slate-200 dark:bg-neutral-800" />
+
+              {/* Color Button */}
+              <button
+                type="button"
+                onClick={() => setBulkColorPickerOpen(!bulkColorPickerOpen)}
+                disabled={bulkActionLoading}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  bulkColorPickerOpen
+                    ? "bg-slate-100 dark:bg-neutral-800 text-slate-900 dark:text-white font-semibold"
+                    : "text-slate-600 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800/80 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5" />
+                <span>Color</span>
+              </button>
+
+              {/* Archive / Restore Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setBulkColorPickerOpen(false);
+                  handleBulkArchive(!showArchived);
+                }}
+                disabled={bulkActionLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-slate-600 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800/80 hover:text-slate-900 dark:hover:text-white transition-colors"
+              >
+                {showArchived ? (
+                  <>
+                    <ArchiveRestore className="w-3.5 h-3.5" />
+                    <span>Restore</span>
+                  </>
+                ) : (
+                  <>
+                    <Archive className="w-3.5 h-3.5" />
+                    <span>Archive</span>
+                  </>
+                )}
+              </button>
+
+              <div className="h-4 w-px bg-slate-200 dark:bg-neutral-800" />
+
+              {/* Delete Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setBulkColorPickerOpen(false);
+                  setBulkDeleteConfirmOpen(true);
+                }}
+                disabled={bulkActionLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-red-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                title="Delete selected"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete</span>
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {bulkDeleteConfirmOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-neutral-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm space-y-4"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-950/40 flex items-center justify-center mx-auto">
+                <Trash2 className="w-6 h-6 text-red-500" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  Delete {selectedNoteIds.length} Notes?
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-neutral-400">
+                  The selected {selectedNoteIds.length} notes will be permanently deleted. This action cannot be undone.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setBulkDeleteConfirmOpen(false)}
+                  disabled={bulkActionLoading}
+                  className="flex-1 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  disabled={bulkActionLoading}
+                  className="flex-1 py-2 rounded-xl text-sm font-bold bg-red-500 text-white hover:bg-red-600 transition-colors"
+                >
+                  {bulkActionLoading ? "Deleting..." : "Delete All"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {editorOpen && (
