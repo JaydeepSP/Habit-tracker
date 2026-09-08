@@ -1,66 +1,73 @@
 import React, { useState } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   Flame,
   Plus,
   Sparkles,
-  Trophy,
   ArrowRight,
-  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useDashboardStats, useHabits } from '@/hooks';
+import { useDashboardStats, useAnalyticsStats } from '@/hooks';
 import { Button, Card } from '@/components/ui';
-import { HabitCard } from '@/components/habits/HabitCard';
-import { HabitModal } from '@/components/habits/HabitModal';
-import { DeleteConfirmModal } from '@/components/habits/DeleteConfirmModal';
-import { RecommendedHabitsModal } from './RecommendedHabitsModal';
+import { RecommendedHabitsModal } from '@/components/dashboard/RecommendedHabitsModal';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
+import { CATEGORY_COLORS, DynamicIcon } from '@/utils/constants';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
+
+const getBarColor = (rate: number) => {
+  if (rate >= 100) return '#15803D';
+  if (rate >= 80) return '#22C55E';
+  if (rate >= 40) return '#7C3AED';
+  if (rate > 0) return '#A78BFA';
+  return '#525252';
+};
+
+const CustomBarTooltip: React.FC<any> = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const rate = payload[0].value;
+    const color = getBarColor(rate);
+    return (
+      <div className="p-2 rounded-xl shadow-xl border bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-xs space-y-0.5">
+        <p className="font-semibold text-slate-500 dark:text-neutral-400">{label}</p>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+          <span className="font-bold">{rate}% Completed</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 export const DashboardPage = () => {
   const { user } = useAuth();
   const { openCreateModal } = (useOutletContext<{ openCreateModal?: () => void }>() || {});
 
-  const [editingHabit, setEditingHabit] = useState<any>(null);
-  const [deletingHabit, setDeletingHabit] = useState<any>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isRecommendedModalOpen, setIsRecommendedModalOpen] = useState(false);
 
   // Custom API hooks
-  const { today, habits, last7Days, streaks, isLoading } = useDashboardStats();
-  const { toggleCompletion, toggleActive, deleteHabit, isDeleting } = useHabits();
-
-  const handleToggleCompletion = (habitId: string) => {
-    toggleCompletion(habitId);
-  };
-
-  const handleToggleActive = (habitId: string) => {
-    toggleActive(habitId);
-  };
-
-  const handleDelete = (habit: any) => {
-    setDeletingHabit(habit);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!deletingHabit) return;
-    try {
-      await deleteHabit(deletingHabit._id);
-      setIsDeleteModalOpen(false);
-      setDeletingHabit(null);
-    } catch (err) {
-      // toast error handled by hook
-    }
-  };
+  const { today, last7Days, streaks, isLoading } = useDashboardStats();
+  const {
+    weeklyData,
+    habitPerformance,
+    categoryStats,
+    dashboardSummary,
+  } = useAnalyticsStats();
 
   if (isLoading) {
     return <DashboardSkeleton />;
   }
-
-  const scheduledTodayHabits = habits.filter((h: any) => h.isScheduledToday);
 
   // Formatted date string for greeting
   const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' };
@@ -97,10 +104,10 @@ export const DashboardPage = () => {
 
       {/* Progress & Stat Cards Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Today's Circular Progress Banner (Monochrome Black & White) */}
+        {/* Today's Circular Progress Banner */}
         <Card className="lg:col-span-2 relative overflow-hidden bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800 shadow-md dark:shadow-xl">
           <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
-            {/* Circular Progress Gauge (Solid White Stroke in Dark Theme) */}
+            {/* Circular Progress Gauge */}
             <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                 <circle
@@ -213,101 +220,113 @@ export const DashboardPage = () => {
         </Card>
       </div>
 
-      {/* Today's Habits Section */}
+      {/* Brief Analytics Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              Today's Habits
+              Performance Insights
             </h3>
             <p className="text-xs text-slate-500 dark:text-neutral-400">
-              Check off your daily habits to maintain your streak
+              Brief summary of your completion consistency and routine breakdown
             </p>
           </div>
           <Link
-            to="/habits"
-            className="text-xs font-semibold text-slate-900 dark:text-white hover:underline flex items-center gap-1"
+            to="/analytics"
+            className="text-xs font-bold text-slate-900 dark:text-white hover:underline flex items-center gap-1"
           >
-            Manage All ({habits.length}) <ArrowRight className="w-3 h-3" />
+            Full Analytics <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 
-        {scheduledTodayHabits.length === 0 ? (
-          <Card className="text-center py-12 px-4 space-y-4 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800">
-            <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white flex items-center justify-center mx-auto text-2xl">
-              🌱
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Weekly Bar Chart (Brief) */}
+          <Card className="lg:col-span-2 p-5 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800 shadow-md space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
+                Weekly Completion Rates
+              </span>
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                Last 7 Days
+              </span>
             </div>
-            <div className="max-w-md mx-auto space-y-1">
-              <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                {habits.length === 0 ? 'No habits yet' : 'No habits scheduled for today'}
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-neutral-400">
-                {habits.length === 0
-                  ? 'Start building your routine by creating your first habit or choosing from recommended presets.'
-                  : 'You have no habits scheduled on this day of the week.'}
-              </p>
-            </div>
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <Button onClick={() => setIsRecommendedModalOpen(true)} variant="secondary" size="sm" className="dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-200">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                Explore Presets
-              </Button>
-              <Button onClick={openCreateModal} size="sm" className="dark:bg-white dark:text-black dark:hover:bg-neutral-200">
-                <Plus className="w-4 h-4" />
-                Create Habit
-              </Button>
+            <div className="h-44 w-full pt-1">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#525252" />
+                  <XAxis dataKey="dayName" stroke="#737373" fontSize={11} tickLine={false} />
+                  <YAxis unit="%" domain={[0, 100]} stroke="#737373" fontSize={11} tickLine={false} />
+                  <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(150, 150, 150, 0.1)' }} />
+                  <Bar dataKey="completionRate" radius={[4, 4, 0, 0]}>
+                    {weeklyData.map((entry, index) => (
+                      <Cell key={`bar-${index}`} fill={getBarColor(entry.completionRate)} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </Card>
-        ) : (
-          <div className="flex flex-col gap-5">
-            {scheduledTodayHabits.map((habit) => (
-              <HabitCard
-                key={habit._id}
-                habit={habit}
-                onToggle={handleToggleCompletion}
-                onEdit={(h) => {
-                  setEditingHabit(h);
-                  setIsEditModalOpen(true);
-                }}
-                onDelete={handleDelete}
-                onToggleActive={handleToggleActive}
-              />
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Habit Edit Modal */}
-      <HabitModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingHabit(null);
-        }}
-        habitToEdit={editingHabit}
-        onSaved={() => {
-          setIsEditModalOpen(false);
-          setEditingHabit(null);
-        }}
-      />
+          {/* Category Distribution / Donut (Brief) */}
+          <Card className="p-5 bg-white dark:bg-[#121212] border-slate-200/90 dark:border-neutral-800 shadow-md space-y-3 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
+                Categories
+              </span>
+              <span className="text-xs font-semibold text-indigo-500">
+                {categoryStats.length} active
+              </span>
+            </div>
+
+            <div className="h-36 w-full flex items-center justify-center">
+              {categoryStats.length === 0 ? (
+                <p className="text-xs text-slate-400">No category data yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryStats}
+                      dataKey="totalCompletions"
+                      nameKey="category"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={55}
+                      innerRadius={32}
+                      paddingAngle={3}
+                    >
+                      {categoryStats.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={CATEGORY_COLORS[entry.category] || '#64748B'}
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            {/* Category legends mini */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-slate-100 dark:border-neutral-800/80">
+              {categoryStats.slice(0, 3).map((c) => (
+                <div key={c.category} className="flex items-center gap-1 text-[10px] font-medium text-slate-600 dark:text-neutral-400">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: CATEGORY_COLORS[c.category] || '#64748B' }}
+                  />
+                  <span>{c.category}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
 
       {/* Recommended Habits Modal */}
       <RecommendedHabitsModal
         isOpen={isRecommendedModalOpen}
         onClose={() => setIsRecommendedModalOpen(false)}
         onAdded={() => setIsRecommendedModalOpen(false)}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setDeletingHabit(null);
-        }}
-        onConfirm={handleConfirmDelete}
-        habitName={deletingHabit?.name || ''}
-        isDeleting={isDeleting}
       />
     </div>
   );

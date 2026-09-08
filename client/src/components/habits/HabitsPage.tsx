@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Plus, Search, Filter, CheckCircle2, PauseCircle } from 'lucide-react';
+import { Plus, Search, Filter, CheckCircle2, PauseCircle, Sparkles } from 'lucide-react';
 import { useHabits, useHabitFilters } from '@/hooks';
 import { CATEGORIES } from '@/utils/constants';
 import { Button, Card, Input } from '@/components/ui';
-import { HabitCard } from './HabitCard';
-import { HabitModal } from './HabitModal';
-import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { HabitCard } from '@/components/habits/HabitCard';
+import { HabitModal } from '@/components/habits/HabitModal';
+import { DeleteConfirmModal } from '@/components/habits/DeleteConfirmModal';
+import { RecommendedHabitsModal } from '@/components/dashboard/RecommendedHabitsModal';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 import { Habit } from '@/types';
@@ -18,6 +19,7 @@ export const HabitsPage = () => {
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRecommendedModalOpen, setIsRecommendedModalOpen] = useState(false);
 
   // TanStack Query & Mutation Hook
   const { habits, isLoading, toggleCompletion, toggleActive, deleteHabit, isDeleting } = useHabits();
@@ -73,10 +75,20 @@ export const HabitsPage = () => {
           </p>
         </div>
 
-        <Button onClick={openCreateModal}>
-          <Plus className="w-4 h-4" />
-          Create Habit
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            onClick={() => setIsRecommendedModalOpen(true)}
+            className="text-xs dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-800"
+          >
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            Recommended Habits
+          </Button>
+          <Button onClick={openCreateModal} className="text-xs dark:bg-white dark:text-black dark:hover:bg-neutral-200">
+            <Plus className="w-4 h-4" />
+            New Habit
+          </Button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -211,6 +223,13 @@ export const HabitsPage = () => {
           setIsEditModalOpen(false);
           setEditingHabit(null);
         }}
+      />
+
+      {/* Recommended Habits Modal */}
+      <RecommendedHabitsModal
+        isOpen={isRecommendedModalOpen}
+        onClose={() => setIsRecommendedModalOpen(false)}
+        onAdded={() => setIsRecommendedModalOpen(false)}
       />
 
       {/* Delete Confirmation Modal */}

@@ -63,6 +63,41 @@ export interface HabitCompletion {
   createdAt?: string;
 }
 
+export interface NoteChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
+}
+
+export type NoteColor =
+  | 'default'
+  | 'red'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'purple'
+  | 'pink';
+
+export type NoteType = 'text' | 'checklist';
+
+export interface Note {
+  _id: string;
+  userId?: string;
+  title: string;
+  content: string;
+  type: NoteType;
+  checklist: NoteChecklistItem[];
+  color: NoteColor;
+  tags: string[];
+  habit?: Habit | string | null;
+  targetDate?: string | null;
+  isPinned: boolean;
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DayPerformance {
   date: string;
   day: string;

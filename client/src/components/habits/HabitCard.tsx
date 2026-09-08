@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Edit3, Trash2, Pause, Play } from 'lucide-react';
+import { Check, Edit3, Trash2, Pause, Play, StickyNote } from 'lucide-react';
 import { DynamicIcon } from '@/utils/constants';
 import { HabitContributionGraph } from './HabitContributionGraph';
+import { HabitNoteModal } from '@/components/habits/HabitNoteModal';
 import { useCompletions } from '@/hooks';
 
 import { Habit } from '@/types';
@@ -110,6 +111,10 @@ export const HabitCard: React.FC<HabitCardProps> = React.memo(({
 
   const accentColor = habit.color || '#3B82F6';
 
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [selectedNoteDate, setSelectedNoteDate] = useState<string | undefined>(undefined);
+  const [isMissedForNote, setIsMissedForNote] = useState(false);
+
   return (
     <motion.div
       layout
@@ -183,6 +188,17 @@ export const HabitCard: React.FC<HabitCardProps> = React.memo(({
         {/* Action Controls */}
         <div className="flex items-center gap-1 shrink-0">
           <button
+            onClick={() => {
+              setSelectedNoteDate(todayStr);
+              setIsMissedForNote(!isCompleted);
+              setIsNoteModalOpen(true);
+            }}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
+            title="Log note or reason for this habit"
+          >
+            <StickyNote className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => onToggleActive && onToggleActive(habit._id)}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
             title={habit.isActive ? 'Pause habit' : 'Resume habit'}
@@ -214,6 +230,16 @@ export const HabitCard: React.FC<HabitCardProps> = React.memo(({
           onDayClick={handleDayClick}
         />
       </div>
+
+      {/* Habit Note Modal */}
+      <HabitNoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        habit={habit}
+        defaultDate={selectedNoteDate}
+        isMissed={isMissedForNote}
+        onSaved={onRefresh}
+      />
     </motion.div>
   );
 });

@@ -7,7 +7,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 // @desc  Get all notes for user
 // @route GET /api/notes
 export const getNotes = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { archived, tag, search, color } = req.query;
+  const { archived, tag, search, color, habit, targetDate } = req.query;
 
   const filter: any = { user: req.user._id };
 
@@ -19,6 +19,8 @@ export const getNotes = asyncHandler(async (req: AuthRequest, res: Response) => 
 
   if (tag) filter.tags = tag;
   if (color) filter.color = color;
+  if (habit) filter.habit = habit;
+  if (targetDate) filter.targetDate = targetDate;
 
   if (search && typeof search === "string") {
     filter.$or = [
@@ -28,7 +30,9 @@ export const getNotes = asyncHandler(async (req: AuthRequest, res: Response) => 
     ];
   }
 
-  const notes = await Note.find(filter).sort({ isPinned: -1, updatedAt: -1 });
+  const notes = await Note.find(filter)
+    .populate("habit", "name icon color category")
+    .sort({ isPinned: -1, updatedAt: -1 });
 
   res.json({ success: true, data: notes });
 });
@@ -36,7 +40,10 @@ export const getNotes = asyncHandler(async (req: AuthRequest, res: Response) => 
 // @desc  Get single note
 // @route GET /api/notes/:id
 export const getNoteById = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const note = await Note.findOne({ _id: req.params.id, user: req.user._id });
+  const note = await Note.findOne({ _id: req.params.id, user: req.user._id }).populate(
+    "habit",
+    "name icon color category",
+  );
   if (!note) throw createHttpError(404, "Note not found");
   res.json({ success: true, data: note });
 });

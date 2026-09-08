@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import { noteService } from "@/services/noteService";
 import { useToast } from "@/context/ToastContext";
+import { DynamicIcon } from "@/utils/constants";
+import { useHabits } from "@/hooks";
+import { Habit } from "@/types";
 
 type NoteColor =
   | "default"
@@ -46,6 +49,8 @@ interface Note {
   checklist: ChecklistItem[];
   color: NoteColor;
   tags: string[];
+  habit?: Habit | string | null;
+  targetDate?: string | null;
   isPinned: boolean;
   isArchived: boolean;
   updatedAt: string;
@@ -262,6 +267,16 @@ const NoteCard: React.FC<{
         )
       : null;
 
+  const linkedHabit =
+    typeof note.habit === "object" && note.habit !== null
+      ? (note.habit as Habit)
+      : null;
+
+  const isMissedHabit = note.tags?.includes("missed-habit") || (linkedHabit && note.color === "red");
+  const isHabitNote = !!linkedHabit;
+  const isReminderNote = !linkedHabit && !!note.targetDate;
+  const isTodoNote = note.type === "checklist" && !linkedHabit && !note.targetDate;
+
   return (
     <motion.div
       layout
@@ -277,6 +292,55 @@ const NoteCard: React.FC<{
           <Pin className="w-3.5 h-3.5 text-slate-400 dark:text-neutral-500 fill-current" />
         </div>
       )}
+
+      {/* Note Type & Linked Badges */}
+      <div className="flex flex-wrap items-center gap-1.5 mb-2.5 pr-6">
+        {isHabitNote ? (
+          <span
+            className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border ${
+              isMissedHabit
+                ? "bg-red-100 dark:bg-red-950/60 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300"
+                : "border"
+            }`}
+            style={
+              !isMissedHabit
+                ? {
+                    backgroundColor: `${linkedHabit.color || "#3B82F6"}18`,
+                    borderColor: `${linkedHabit.color || "#3B82F6"}40`,
+                    color: linkedHabit.color || "#3B82F6",
+                  }
+                : undefined
+            }
+          >
+            <DynamicIcon
+              name={linkedHabit.icon || "Activity"}
+              className="w-3 h-3"
+            />
+            <span className="truncate max-w-[130px]">
+              {isMissedHabit ? `Missed: ${linkedHabit.name}` : linkedHabit.name}
+            </span>
+          </span>
+        ) : isReminderNote ? (
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+            🔔 Calendar Reminder
+          </span>
+        ) : isTodoNote ? (
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-900">
+            ☑ To-Do Checklist
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-400 border border-slate-200 dark:border-neutral-700">
+            📝 Standard Note
+          </span>
+        )}
+
+        {note.targetDate && (
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700">
+            📅 {note.targetDate}
+          </span>
+        )}
+      </div>
+
       {note.title && (
         <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1.5 pr-6 leading-tight line-clamp-2">
           {note.title}
@@ -425,7 +489,8 @@ const NoteEditor: React.FC<{
   note: Partial<Note> | null;
   onClose: () => void;
   onSave: (d: Partial<Note>) => Promise<void>;
-}> = ({ note, onClose, onSave }) => {
+  availableHabits: Habit[];
+}> = ({ note, onClose, onSave, availableHabits }) => {
   const [title, setTitle] = useState(note?.title || "");
   const [content, setContent] = useState(note?.content || "");
   const [type, setType] = useState<NoteType>(note?.type || "text");
@@ -435,6 +500,12 @@ const NoteEditor: React.FC<{
   const [color, setColor] = useState<NoteColor>(note?.color || "default");
   const [tags, setTags] = useState<string[]>(note?.tags || []);
   const [tagInput, setTagInput] = useState("");
+  const [habitId, setHabitId] = useState<string>(
+    typeof note?.habit === "object" && note?.habit !== null
+      ? (note.habit as Habit)._id
+      : (note?.habit as string) || "",
+  );
+  const [targetDate, setTargetDate] = useState<string>(note?.targetDate || "");
   const [saving, setSaving] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const cc = getCC(color);
@@ -450,7 +521,16 @@ const NoteEditor: React.FC<{
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSave({ title, content, type, checklist, color, tags });
+      await onSave({
+        title,
+        content,
+        type,
+        checklist,
+        color,
+        tags,
+        habit: habitId || null,
+        targetDate: targetDate || null,
+      });
       onClose();
     } finally {
       setSaving(false);
@@ -474,7 +554,7 @@ const NoteEditor: React.FC<{
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95, y: 16 }}
         transition={{ duration: 0.2 }}
-        className={`w-full max-w-xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col max-h-[85vh] ${cc.bg} ${cc.border}`}
+        className={`w-full max-w-xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col max-h-[88vh] ${cc.bg} ${cc.border}`}
       >
         <div className="flex items-center gap-2 px-4 pt-4 pb-2">
           <input
@@ -493,6 +573,40 @@ const NoteEditor: React.FC<{
             <X className="w-4 h-4" />
           </button>
         </div>
+
+        {/* Linked Habit & Reminder Date selectors */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 px-4 pb-2.5">
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
+              Connect Habit (Optional)
+            </label>
+            <select
+              value={habitId}
+              onChange={(e) => setHabitId(e.target.value)}
+              className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-neutral-600"
+            >
+              <option value="">No linked habit</option>
+              {availableHabits.map((h) => (
+                <option key={h._id} value={h._id}>
+                  {h.name} ({h.category})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
+              Reminder / Target Date
+            </label>
+            <input
+              type="date"
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+              className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-slate-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-neutral-600"
+            />
+          </div>
+        </div>
+
         <div className="flex items-center gap-1 px-4 pb-3">
           {(
             [
@@ -527,8 +641,8 @@ const NoteEditor: React.FC<{
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Start writing your note..."
-              className="w-full min-h-[180px] text-sm text-slate-800 dark:text-neutral-200 placeholder:text-slate-400 dark:placeholder:text-neutral-600 bg-transparent outline-none resize-none leading-relaxed"
+              placeholder="Start writing your note or reason for missing habit..."
+              className="w-full min-h-[160px] text-sm text-slate-800 dark:text-neutral-200 placeholder:text-slate-400 dark:placeholder:text-neutral-600 bg-transparent outline-none resize-none leading-relaxed"
             />
           ) : (
             <ChecklistEditor items={checklist} onChange={setChecklist} />
@@ -641,12 +755,16 @@ export const NotesPage: React.FC = () => {
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
+  const { habits } = useHabits();
+  const [selectedHabitFilter, setSelectedHabitFilter] = useState("");
+  const [categoryTab, setCategoryTab] = useState<"all" | "habits" | "reminders" | "todos">("all");
 
   const fetchNotes = useCallback(async () => {
     try {
       const params: any = { archived: showArchived };
       if (search) params.search = search;
       if (activeTag) params.tag = activeTag;
+      if (selectedHabitFilter) params.habit = selectedHabitFilter;
       const res = await noteService.getNotes(params);
       setNotes(res.data || []);
     } catch (err) {
@@ -654,7 +772,7 @@ export const NotesPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [showArchived, search, activeTag]);
+  }, [showArchived, search, activeTag, selectedHabitFilter]);
 
   useEffect(() => {
     clearTimeout(searchTimeout.current);
@@ -707,23 +825,35 @@ export const NotesPage: React.FC = () => {
     success("Note deleted");
   };
 
-  const allTags = Array.from(new Set(notes.flatMap((n) => n.tags || []))).slice(
+  // Filter notes by category tab
+  const displayedNotes = notes.filter((n) => {
+    const hasHabit = !!n.habit;
+    const hasDateReminder = !n.habit && !!n.targetDate;
+    const isTodo = n.type === "checklist" && !n.habit && !n.targetDate;
+
+    if (categoryTab === "habits") return hasHabit;
+    if (categoryTab === "reminders") return hasDateReminder;
+    if (categoryTab === "todos") return isTodo;
+    return true;
+  });
+
+  const allTags = Array.from(new Set(displayedNotes.flatMap((n) => n.tags || []))).slice(
     0,
     20,
   );
-  const pinned = notes.filter((n) => n.isPinned);
-  const unpinned = notes.filter((n) => !n.isPinned);
+  const pinned = displayedNotes.filter((n) => n.isPinned);
+  const unpinned = displayedNotes.filter((n) => !n.isPinned);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Notes
+            Notes & Habit Logs
           </h2>
           <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
-            {notes.length} {notes.length === 1 ? "note" : "notes"}
-            {showArchived ? " archived" : ""}
+            {displayedNotes.length} {displayedNotes.length === 1 ? "note" : "notes"}
+            {showArchived ? " archived" : ""} • Keep track of habit reasons, daily logs, and date reminders
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -732,6 +862,8 @@ export const NotesPage: React.FC = () => {
             onClick={() => {
               setShowArchived(!showArchived);
               setActiveTag("");
+              setSelectedHabitFilter("");
+              setCategoryTab("all");
               setSearch("");
             }}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
@@ -754,24 +886,65 @@ export const NotesPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-neutral-600 pointer-events-none" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search notes by title, content, or tag..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm bg-white dark:bg-[#121212] border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-neutral-700"
-        />
-        {search && (
+      {/* Category Tabs & Filter Bar */}
+      <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-neutral-900/80 border border-slate-200 dark:border-neutral-800">
+        {[
+          { id: "all", label: "All Notes" },
+          { id: "habits", label: "🎯 Habit Logs & Reasons" },
+          { id: "reminders", label: "🔔 Calendar Reminders" },
+          { id: "todos", label: "☑ To-Do Checklists" },
+        ].map((tab) => (
           <button
+            key={tab.id}
             type="button"
-            onClick={() => setSearch("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-neutral-200"
+            onClick={() => setCategoryTab(tab.id as any)}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+              categoryTab === tab.id
+                ? "bg-white dark:bg-neutral-800 text-slate-900 dark:text-white shadow-sm"
+                : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
           >
-            <X className="w-3.5 h-3.5" />
+            {tab.label}
           </button>
-        )}
+        ))}
+      </div>
+
+      {/* Search & Habit Filter Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="relative sm:col-span-2">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-neutral-600 pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search notes by title, content, or tag..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm bg-white dark:bg-[#121212] border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-neutral-700"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-neutral-200"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        <div>
+          <select
+            value={selectedHabitFilter}
+            onChange={(e) => setSelectedHabitFilter(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl text-sm bg-white dark:bg-[#121212] border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-neutral-700"
+          >
+            <option value="">All Habit Logs & General Notes</option>
+            {habits.map((h) => (
+              <option key={h._id} value={h._id}>
+                Habit: {h.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {allTags.length > 0 && (
@@ -898,6 +1071,7 @@ export const NotesPage: React.FC = () => {
             note={editorNote}
             onClose={closeEditor}
             onSave={handleSave}
+            availableHabits={habits}
           />
         )}
       </AnimatePresence>

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -15,10 +16,10 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' 
     };
   }, [isOpen]);
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -38,10 +39,11 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' 
           >
             {title && (
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-neutral-800">
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                   {title}
-                </h3>
+                </div>
                 <button
+                  type="button"
                   onClick={onClose}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
                 >
@@ -55,4 +57,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' 
       )}
     </AnimatePresence>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(modalContent, document.body);
 };

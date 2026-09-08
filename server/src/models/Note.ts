@@ -60,6 +60,18 @@ const noteSchema = new mongoose.Schema(
         message: "Cannot have more than 10 tags",
       },
     },
+    habit: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Habit",
+      default: null,
+      index: true,
+    },
+    targetDate: {
+      type: String,
+      match: [/^\d{4}-\d{2}-\d{2}$/, "Please provide date in YYYY-MM-DD format"],
+      default: null,
+      index: true,
+    },
     isPinned: {
       type: Boolean,
       default: false,
@@ -76,6 +88,8 @@ const noteSchema = new mongoose.Schema(
 
 noteSchema.index({ user: 1, isPinned: -1, updatedAt: -1 });
 noteSchema.index({ user: 1, isArchived: 1 });
+noteSchema.index({ user: 1, habit: 1 });
+noteSchema.index({ user: 1, targetDate: 1 });
 
 const Note = mongoose.model("Note", noteSchema);
 export default Note;
